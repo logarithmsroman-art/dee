@@ -117,7 +117,7 @@ export default function InquiriesPage() {
                       
                       {inquiry.status === 'unread' ? (
                         <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, 'read')} className="text-slate-400 hover:text-slate-900">
-                           <Mail className size={16} />
+                           <Mail size={16} />
                         </Button>
                       ) : (
                         <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, 'unread')} className="text-amber-500">
