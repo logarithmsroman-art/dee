@@ -3,8 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
-import { format as dateFnsFormat } from 'date-fns'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const { slug } = await params
@@ -73,7 +72,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
           <ArrowLeft className="w-3 h-3 mr-2" /> Back to Journal
         </Link>
         <time className="block text-amber-600 font-medium tracking-widest uppercase mb-6 text-sm">
-          {article.published_at ? dateFnsFormat(new Date(article.published_at), 'MMMM d, yyyy') : 'Published'}
+          {article.published_at ? new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(article.published_at)) : 'Published'}
         </time>
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-slate-900 leading-tight md:leading-tight lg:leading-tight mb-8">
           {article.title}

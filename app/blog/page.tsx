@@ -2,7 +2,6 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
-import { format as dateFnsFormat } from 'date-fns'
 import { InkBackground } from '@/components/global/InkBackground'
 
 export const metadata = {
@@ -63,7 +62,7 @@ export default async function BlogPage() {
                   )}
                   <div className={`flex flex-col justify-center ${!article.feature_image_url ? 'w-full' : 'w-full md:w-2/3'}`}>
                     <time className="text-sm font-medium text-amber-600 uppercase tracking-widest mb-3 block">
-                      {article.published_at ? dateFnsFormat(new Date(article.published_at), 'MMMM d, yyyy') : 'Published'}
+                      {article.published_at ? new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(article.published_at)) : 'Published'}
                     </time>
                     <h2 className="text-4xl font-serif text-slate-900 mb-6 group-hover:text-amber-700 transition-colors leading-tight">
                       {article.title}
