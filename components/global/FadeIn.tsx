@@ -3,19 +3,21 @@
 import { motion } from "framer-motion"
 import { ReactNode } from "react"
 
+interface FadeInProps {
+  children: ReactNode
+  delay?: number
+  duration?: number
+  direction?: "up" | "down" | "left" | "right" | "none"
+  className?: string
+}
+
 export function FadeIn({ 
   children, 
   delay = 0, 
   duration = 0.8,
   direction = "up",
   className
-}: { 
-  children: ReactNode, 
-  delay?: number,
-  duration?: number,
-  direction?: "up" | "down" | "left" | "right" | "none",
-  className?: string
-}) {
+}: FadeInProps) {
   const directionOffset = {
     up: { y: 20, x: 0 },
     down: { y: -20, x: 0 },
