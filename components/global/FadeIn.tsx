@@ -1,12 +1,11 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ReactNode } from "react"
+import { ReactNode, useEffect, useRef, useState } from "react"
 
 interface FadeInProps {
   children: ReactNode
   delay?: number
-  duration?: number
+  duration?: number // Duration is now handled by CSS, but kept for interface compatibility
   direction?: "up" | "down" | "left" | "right" | "none"
   className?: string
 }
@@ -14,58 +13,65 @@ interface FadeInProps {
 export function FadeIn({ 
   children, 
   delay = 0, 
-  duration = 0.8,
   direction = "up",
-  className
+  className = ""
 }: FadeInProps) {
-  const directionOffset = {
-    up: { y: 20, x: 0 },
-    down: { y: -20, x: 0 },
-    left: { x: 20, y: 0 },
-    right: { x: -20, y: 0 },
-    none: { x: 0, y: 0 }
-  }
+  const [isVisible, setIsVisible] = useState(false)
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), delay * 1000)
+    return () => clearTimeout(timer)
+  }, [delay])
 
-  const initialOffset = directionOffset[direction]
+  const animationClass = direction === "none" ? "animate-fade-in" : `animate-fade-in-${direction}`
 
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, ...initialOffset }}
-      animate={{ opacity: 1, x: 0, y: 0 }}
-      transition={{
-        duration: duration,
-        delay: delay,
-        ease: [0.21, 0.47, 0.32, 0.98] // Custom easing for premium feel
-      }}
+    <div 
+      className={`${className} ${isVisible ? animationClass : "opacity-0"}`}
+      style={{ animationDelay: `${delay}s` }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
 export function ScrollReveal({ 
   children, 
   delay = 0,
-  className
+  className = ""
 }: { 
   children: ReactNode, 
   delay?: number,
   className?: string
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.unobserve(entry.target)
+        }
+      },
+      { threshold: 0.1, rootMargin: "-50px" }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{
-        duration: 0.8,
-        delay: delay,
-        ease: [0.21, 0.47, 0.32, 0.98]
-      }}
+    <div
+      ref={ref}
+      className={`${className} reveal-hidden ${isVisible ? "reveal-visible" : ""}`}
+      style={{ transitionDelay: `${delay}s` }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }

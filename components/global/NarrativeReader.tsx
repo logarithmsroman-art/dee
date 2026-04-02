@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Menu, X, ArrowLeft, BookOpen, Clock, ChevronRight } from 'lucide-react'
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import { Button } from '@/components/ui/button'
 
 interface Chapter {

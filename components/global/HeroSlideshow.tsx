@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
 import { InkBackground } from './InkBackground'
 import { LetterReveal } from './LetterReveal'
 import { FadeIn } from './FadeIn'
@@ -35,7 +34,6 @@ export interface HeroSlideshowProps {
 export function HeroSlideshow({ settings }: HeroSlideshowProps) {
   const [current, setCurrent] = useState(0)
   
-  // Dynamic Content Overrides
   const activeSlides = [
     {
       ...slides[0],
@@ -64,7 +62,7 @@ export function HeroSlideshow({ settings }: HeroSlideshowProps) {
     timerRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % activeSlides.length)
     }, SLIDE_DURATION)
-  }, [stopTimer])
+  }, [stopTimer, activeSlides.length])
 
   useEffect(() => {
     startTimer()
@@ -78,74 +76,71 @@ export function HeroSlideshow({ settings }: HeroSlideshowProps) {
 
   return (
     <section className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-black">
-      {/* Dynamic Backgrounds - CLEAN ARTWORK FIXED */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={current}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0"
+      {/* Backgrounds with CSS Cross-fade */}
+      {activeSlides.map((slide, i) => (
+        <div
+          key={i}
+          className={`absolute inset-0 transition-all duration-[2500ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+          }`}
         >
           <Image
-            src={activeSlides[current].image}
+            src={slide.image}
             alt="Hero Background"
             fill
-            className="object-cover opacity-100 transition-all duration-[2500ms]"
-            priority
+            className="object-cover"
+            priority={i === 0}
           />
-          {/* Light Cinematic Grad to keep UI readable */}
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      ))}
 
       <InkBackground />
       
       <div className="relative z-20 text-center px-6 w-full max-w-5xl flex flex-col items-center justify-center h-full pb-32">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 1.5, delay: 0.8 }}
-            className="flex flex-col items-center gap-8"
+        {activeSlides.map((slide, i) => (
+          <div 
+            key={i} 
+            className={`flex flex-col items-center gap-8 transition-all duration-[1500ms] absolute inset-0 flex items-center justify-center h-full pb-32 ${
+              i === current ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'
+            }`}
           >
             <LetterReveal 
-              text={activeSlides[current].title}
+              text={slide.title}
               className="text-5xl md:text-8xl lg:text-9xl text-white drop-shadow-2xl leading-[1.1] font-serif" 
               delay={0.2}
             />
             
-            <p className="text-white/90 text-lg md:text-2xl lg:text-3xl font-light italic tracking-widest leading-relaxed max-w-3xl px-4 text-shadow-lg">
-              {activeSlides[current].tagline}
+            <p className="text-white/90 text-lg md:text-2xl lg:text-3xl font-light italic tracking-widest leading-relaxed max-w-3xl px-4 text-shadow-lg text-center">
+              {slide.tagline}
             </p>
-          </motion.div>
-        </AnimatePresence>
-        
-        <FadeIn delay={2}>
-          <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 items-center justify-center pt-8 md:pt-12">
-            <Link 
-              href="/shelf" 
-              className="w-[220px] md:w-auto px-12 md:px-16 py-5 md:py-6 bg-white text-slate-900 font-bold hover:bg-slate-50 transition-all active:scale-95 tracking-[0.3em] uppercase text-[10px] md:text-[11px]"
-              style={{ borderRadius: '1px' }}
-            >
-              The Library
-            </Link>
-            <Link 
-              href="/blog" 
-              className="w-[220px] md:w-auto px-12 md:px-16 py-5 md:py-6 bg-transparent border-2 border-white/50 text-white font-bold hover:bg-white/10 transition-all active:scale-95 tracking-[0.3em] uppercase text-[10px] md:text-[11px]"
-              style={{ borderRadius: '1px' }}
-            >
-              The Journal
-            </Link>
           </div>
-        </FadeIn>
+        ))}
+        
+        <div className="mt-auto">
+          <FadeIn delay={2}>
+            <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 items-center justify-center pt-8 md:pt-12">
+              <Link 
+                href="/shelf" 
+                className="w-[220px] md:w-auto px-12 md:px-16 py-5 md:py-6 bg-white text-slate-900 font-bold hover:bg-slate-50 transition-all active:scale-95 tracking-[0.3em] uppercase text-[10px] md:text-[11px]"
+                style={{ borderRadius: '1px' }}
+              >
+                The Library
+              </Link>
+              <Link 
+                href="/blog" 
+                className="w-[220px] md:w-auto px-12 md:px-16 py-5 md:py-6 bg-transparent border-2 border-white/50 text-white font-bold hover:bg-white/10 transition-all active:scale-95 tracking-[0.3em] uppercase text-[10px] md:text-[11px]"
+                style={{ borderRadius: '1px' }}
+              >
+                The Journal
+              </Link>
+            </div>
+          </FadeIn>
+        </div>
       </div>
 
-      {/* Manual Slide Indicators (FIXED OVERLAP & CLICKABLE) */}
+      {/* Manual Slide Indicators */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-4 md:gap-6 px-10 py-2 pointer-events-auto">
         {activeSlides.map((_, i) => (
           <button 

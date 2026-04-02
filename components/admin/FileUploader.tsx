@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { UploadCloud, Loader2, FileText } from 'lucide-react'
+import UploadCloud from 'lucide-react/dist/esm/icons/upload-cloud'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
 import { Button } from '@/components/ui/button'
 
 interface FileUploaderProps {

@@ -4,15 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  Library, 
-  FileText, 
-  Briefcase, 
-  Inbox, 
-  Settings,
-  LogOut
-} from 'lucide-react'
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard'
+import Library from 'lucide-react/dist/esm/icons/library'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Briefcase from 'lucide-react/dist/esm/icons/briefcase'
+import Inbox from 'lucide-react/dist/esm/icons/inbox'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import LogOut from 'lucide-react/dist/esm/icons/log-out'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },

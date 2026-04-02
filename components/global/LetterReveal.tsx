@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import React from "react"
 
 export function LetterReveal({ 
@@ -14,53 +13,19 @@ export function LetterReveal({
 }) {
   const letters = Array.from(text)
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: (i: number = 1) => ({
-      opacity: 1,
-      transition: { staggerChildren: 0.05, delayChildren: 0.04 * i + delay },
-    }),
-  }
-
-  const child = {
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      } as const,
-    },
-    hidden: {
-      opacity: 0,
-      y: 10,
-      filter: "blur(4px)",
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      } as const,
-    },
-  }
-
   return (
-    <motion.h1
-      className={`heading-prestige ${className}`}
-      variants={container}
-      initial="hidden"
-      animate="visible"
-    >
+    <h1 className={`heading-prestige ${className}`}>
       {letters.map((letter, index) => (
-        <motion.span
-          variants={child}
+        <span
           key={index}
-          className="inline-block"
+          className="inline-block animate-char-reveal opacity-0"
+          style={{ 
+            animationDelay: `${(index * 0.05) + delay}s`
+          }}
         >
           {letter === " " ? "\u00A0" : letter}
-        </motion.span>
+        </span>
       ))}
-    </motion.h1>
+    </h1>
   )
 }

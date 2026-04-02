@@ -1,7 +1,6 @@
 "use client"
 
 import React from 'react'
-import { motion } from 'framer-motion'
 
 const icons = [
   // Fountain Pen SVG
@@ -19,7 +18,7 @@ export function WritersPattern() {
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-[0.03]">
       <div className="grid grid-cols-4 md:grid-cols-6 gap-24 p-12">
         {Array.from({ length: 24 }).map((_, i) => (
-          <motion.svg
+          <svg
             key={i}
             viewBox="0 0 24 24"
             fill="none"
@@ -27,21 +26,14 @@ export function WritersPattern() {
             strokeWidth="1"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-16 h-16 text-slate-900"
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, i % 2 === 0 ? 10 : -10, 0],
-              opacity: [0.3, 0.6, 0.3]
-            }}
-            transition={{
-              duration: 8 + (i % 5),
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.2
+            className="w-16 h-16 text-slate-900 animate-float-pattern"
+            style={{ 
+              animationDelay: `${i * 0.2}s`,
+              animationDuration: `${8 + (i % 5)}s`
             }}
           >
             {icons[i % icons.length]}
-          </motion.svg>
+          </svg>
         ))}
       </div>
     </div>

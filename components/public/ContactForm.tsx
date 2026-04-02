@@ -5,7 +5,9 @@ import { submitInquiry } from '@/app/contact/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import { useSearchParams } from 'next/navigation'
 
 export function ContactForm() {
