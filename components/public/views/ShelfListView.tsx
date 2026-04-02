@@ -1,33 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const metadata = {
-  title: "Dee's Pen Shelf | Dee's Pen House",
-  description: "Explore books, projects, and creative works by Dee's Pen House.",
+interface ShelfListViewProps {
+  shelfItems: any[]
 }
 
-export default async function ShelfPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: shelfItems } = await supabase
-    .from('shelf_items')
-    .select('*')
-    .eq('is_visible', true)
-    .order('created_at', { ascending: false })
-
+export function ShelfListView({ shelfItems }: ShelfListViewProps) {
   return (
     <div className="max-w-7xl mx-auto px-6 py-24 min-h-screen">
       <div className="text-center mb-20 space-y-4">

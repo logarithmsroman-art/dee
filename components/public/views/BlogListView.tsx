@@ -1,34 +1,12 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 import { InkBackground } from '@/components/global/InkBackground'
 
-export const metadata = {
-  title: "Blog & Articles | Dee's Pen House",
-  description: "Read the latest thoughts, articles, and stories from Dee's Pen House.",
+interface BlogListViewProps {
+  articles: any[]
 }
 
-export default async function BlogPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
-
+export function BlogListView({ articles }: BlogListViewProps) {
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-slate-50/50 border-b border-slate-100 py-32 px-6 relative overflow-hidden">

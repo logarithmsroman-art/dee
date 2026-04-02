@@ -1,33 +1,12 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right'
 import { InkBackground } from '@/components/global/InkBackground'
 
-export const metadata = {
-  title: "Services & Expertise | Dee's Pen House",
-  description: "Professional ghostwriting, content writing, and brand storytelling services.",
+interface ServicesViewProps {
+  services: any[]
 }
 
-export default async function ServicesPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: services } = await supabase
-    .from('services')
-    .select('*')
-    .order('created_at', { ascending: true })
-
+export function ServicesView({ services }: ServicesViewProps) {
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}

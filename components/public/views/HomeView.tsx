@@ -1,50 +1,19 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { ArrowRight } from 'lucide-react'
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right'
 import { FadeIn, ScrollReveal } from '@/components/global/FadeIn'
 import { HeroSlideshow } from '@/components/global/HeroSlideshow'
 import { WritersPattern } from '@/components/global/WritersPattern'
 import { InkBackground } from '@/components/global/InkBackground'
 
-async function getLatestContent() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const [
-    { data: latestShelfItems },
-    { data: latestArticles },
-    { data: services },
-    { data: settings }
-  ] = await Promise.all([
-    supabase.from('shelf_items').select('*').eq('is_visible', true).order('created_at', { ascending: false }).limit(1),
-    supabase.from('articles').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(1),
-    supabase.from('services').select('*').order('created_at', { ascending: true }).limit(3),
-    supabase.from('global_settings').select('*').limit(1).single()
-  ])
-
-  return {
-    latestShelfItem: latestShelfItems?.[0] || null,
-    latestArticle: latestArticles?.[0] || null,
-    services: services || [],
-    settings: settings || null
-  }
+interface HomeViewProps {
+  latestShelfItem: any
+  latestArticle: any
+  services: any[]
+  settings: any
 }
 
-export default async function Home() {
-  const { latestShelfItem, latestArticle, services, settings } = await getLatestContent()
-
+export function HomeView({ latestShelfItem, latestArticle, services, settings }: HomeViewProps) {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       

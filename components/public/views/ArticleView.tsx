@@ -1,66 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { slug } = await params
-  
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: article } = await supabase
-    .from('articles')
-    .select('title, excerpt, content')
-    .eq('slug', slug)
-    .single()
-
-  if (!article) return { title: 'Article Not Found | Dee\'s Pen House' }
-
-  return {
-    title: `${article.title} | Dee's Pen House`,
-    description: article.excerpt || article.content?.substring(0, 160).replace(/(<([^>]+)>)/gi, ""),
-  }
+interface ArticleViewProps {
+  article: any
 }
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
-  const { slug } = await params
-  
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: article } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-
-  if (!article || article.status !== 'published') {
-    notFound()
-  }
-
+export function ArticleView({ article }: ArticleViewProps) {
   return (
     <article className="min-h-screen bg-white">
       {/* Editorial Header */}

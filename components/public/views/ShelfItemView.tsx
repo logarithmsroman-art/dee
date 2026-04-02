@@ -1,68 +1,15 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { notFound } from 'next/navigation'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import { NarrativeReader } from '@/components/global/NarrativeReader'
 import { PDFReader } from '@/components/global/PDFReader'
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: item } = await supabase
-    .from('shelf_items')
-    .select('title, synopsis')
-    .eq('slug', slug)
-    .single()
-
-  if (!item) return { title: 'Not Found | Dee\'s Pen House' }
-
-  return {
-    title: `${item.title} | Dee's Pen House`,
-    description: item.synopsis.substring(0, 160),
-  }
+interface ShelfItemViewProps {
+  item: any
 }
 
-export default async function ShelfItemPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: item } = await supabase
-    .from('shelf_items')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-
-  if (!item || !item.is_visible) {
-    notFound()
-  }
-
+export function ShelfItemView({ item }: ShelfItemViewProps) {
   // Handle Narrative Mode
   if (item.reader_mode === 'narrative') {
     return <NarrativeReader item={item} />
@@ -137,4 +84,3 @@ export default async function ShelfItemPage({ params }: { params: Promise<{ slug
     </div>
   )
 }
-

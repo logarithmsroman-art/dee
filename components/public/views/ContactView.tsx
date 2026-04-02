@@ -1,38 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { ContactForm } from '@/components/public/ContactForm'
 import { Suspense } from 'react'
 
-export const metadata = {
-  title: "Contact & Inquiries | Dee's Pen House",
-  description: "Get in touch with Dee's Pen House for ghostwriting, content writing, and storytelling inquiries.",
+interface ContactViewProps {
+  settings: any
 }
 
-async function getGlobalSettings() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-
-  const { data: settings } = await supabase
-    .from('global_settings')
-    .select('contact_email, linkedin_url, twitter_url')
-    .single()
-
-  return settings
-}
-
-export default async function ContactPage() {
-  const settings = await getGlobalSettings()
-
+export function ContactView({ settings }: ContactViewProps) {
   return (
     <div className="bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-32 grid grid-cols-1 lg:grid-cols-2 gap-16 item-start">
