@@ -7,12 +7,14 @@ export function FadeIn({
   children, 
   delay = 0, 
   duration = 0.8,
-  direction = "up"
+  direction = "up",
+  className
 }: { 
   children: ReactNode, 
   delay?: number,
   duration?: number,
-  direction?: "up" | "down" | "left" | "right" | "none"
+  direction?: "up" | "down" | "left" | "right" | "none",
+  className?: string
 }) {
   const directionOffset = {
     up: { y: 20, x: 0 },
@@ -26,6 +28,7 @@ export function FadeIn({
 
   return (
     <motion.div
+      className={className}
       initial={{ opacity: 0, ...initialOffset }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{
@@ -41,13 +44,16 @@ export function FadeIn({
 
 export function ScrollReveal({ 
   children, 
-  delay = 0 
+  delay = 0,
+  className
 }: { 
   children: ReactNode, 
-  delay?: number
+  delay?: number,
+  className?: string
 }) {
   return (
     <motion.div
+      className={className}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
