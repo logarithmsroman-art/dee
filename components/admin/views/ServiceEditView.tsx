@@ -1,26 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
 import Link from 'next/link'
 
-export default function EditServicePage() {
+interface ServiceEditViewProps {
+  id?: string
+}
+
+export function ServiceEditView({ id }: ServiceEditViewProps) {
   const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
+  const isNew = !id
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -32,6 +36,8 @@ export default function EditServicePage() {
 
   useEffect(() => {
     async function fetchData() {
+      if (isNew) return
+      
       const { data, error } = await supabase
         .from('services')
         .select('*')
@@ -50,25 +56,31 @@ export default function EditServicePage() {
         setLoading(false)
       }
     }
-    if (id) fetchData()
-  }, [id, supabase])
+    fetchData()
+  }, [id, isNew, supabase])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     setError(null)
     
-    const { error: updateError } = await supabase
-      .from('services')
-      .update({
-        title: formData.title,
-        description: formData.description,
-        base_price: formData.base_price ? parseFloat(formData.base_price) : null,
-      })
-      .eq('id', id)
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      base_price: formData.base_price ? parseFloat(formData.base_price) : null,
+    }
 
-    if (updateError) {
-      setError(updateError.message)
+    let saveError
+    if (isNew) {
+      const { error } = await supabase.from('services').insert(payload)
+      saveError = error
+    } else {
+      const { error } = await supabase.from('services').update(payload).eq('id', id)
+      saveError = error
+    }
+
+    if (saveError) {
+      setError(saveError.message)
       setSaving(false)
     } else {
       router.push('/admin/services')
@@ -91,8 +103,8 @@ export default function EditServicePage() {
         <Link href="/admin/services" className="flex items-center text-slate-400 hover:text-slate-900 transition-all font-bold text-[10px] uppercase tracking-widest mb-4">
           <ArrowLeft className="w-3 h-3 mr-2" /> Back to Services
         </Link>
-        <h1 className="text-3xl font-serif text-slate-900">Revise Service</h1>
-        <p className="text-slate-500 mt-2">Updating: <span className="text-slate-900 font-bold">{formData.title}</span></p>
+        <h1 className="text-3xl font-serif text-slate-900">{isNew ? 'Define Service' : 'Revise Service'}</h1>
+        {!isNew && <p className="text-slate-500 mt-2">Updating: <span className="text-slate-900 font-bold">{formData.title}</span></p>}
       </div>
 
       {error && (
@@ -118,8 +130,8 @@ export default function EditServicePage() {
         </div>
 
         <div className="pt-4 flex justify-end gap-3 border-t">
-          <Button variant="ghost" type="button" onClick={() => router.back()}>Cancel Updates</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Update Service'}</Button>
+          <Button variant="ghost" type="button" onClick={() => router.back()}>Cancel</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'Saving...' : (isNew ? 'Create Service' : 'Update Service')}</Button>
         </div>
       </form>
     </div>

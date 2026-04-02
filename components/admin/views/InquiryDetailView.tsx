@@ -1,17 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Mail, MailOpen, Trash2, Archive, User, Calendar, ExternalLink } from 'lucide-react'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import Mail from 'lucide-react/dist/esm/icons/mail'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Archive from 'lucide-react/dist/esm/icons/archive'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import Link from 'next/link'
 
-export default function InquiryDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const id = params.id as string
+interface InquiryDetailViewProps {
+  id: string
+}
 
+export function InquiryDetailView({ id }: InquiryDetailViewProps) {
+  const router = useRouter()
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

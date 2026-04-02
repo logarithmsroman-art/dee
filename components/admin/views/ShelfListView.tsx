@@ -14,9 +14,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash, BookOpen, Loader2 } from 'lucide-react'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Edit from 'lucide-react/dist/esm/icons/edit'
+import Trash from 'lucide-react/dist/esm/icons/trash'
+import BookOpen from 'lucide-react/dist/esm/icons/book-open'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 
-export default function ShelfManagerPage() {
+export function ShelfListView() {
   const router = useRouter()
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

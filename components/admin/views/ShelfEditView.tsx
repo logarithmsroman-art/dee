@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Button } from '@/components/ui/button'
@@ -10,15 +10,31 @@ import { ImageUploader } from '@/components/admin/ImageUploader'
 import { FileUploader } from '@/components/admin/FileUploader'
 import { TiptapEditor } from '@/components/admin/TiptapEditor'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Trash2, ChevronDown, ChevronUp, BookOpen, FileText, ScrollText } from 'lucide-react'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import BookOpen from 'lucide-react/dist/esm/icons/book-open'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import ScrollText from 'lucide-react/dist/esm/icons/scroll-text'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import Link from 'next/link'
 
-export default function NewShelfItemPage() {
+interface ShelfEditViewProps {
+  id?: string
+}
+
+export function ShelfEditView({ id }: ShelfEditViewProps) {
   const router = useRouter()
+  const isNew = !id
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -31,8 +47,43 @@ export default function NewShelfItemPage() {
     is_visible: true,
     reader_mode: 'none' as 'none' | 'pdf' | 'narrative',
     pdf_url: '',
-    narrative_content: [] as { id: string; title: string; content: string; isOpen: boolean }[]
+    narrative_content: [] as any[]
   })
+
+  useEffect(() => {
+    async function fetchData() {
+      if (isNew) return
+      
+      const { data, error } = await supabase
+        .from('shelf_items')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      } else {
+        setFormData({
+          title: data.title || '',
+          slug: data.slug || '',
+          synopsis: data.synopsis || '',
+          cover_image_url: data.cover_image_url || '',
+          cta_url: data.cta_url || '',
+          is_visible: data.is_visible,
+          reader_mode: data.reader_mode || 'none',
+          pdf_url: data.pdf_url || '',
+          narrative_content: (data.narrative_content || []).map((c: any) => ({ 
+            ...c, 
+            id: c.id || crypto.randomUUID(),
+            isOpen: false 
+          }))
+        })
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [id, isNew, supabase])
 
   const addChapter = () => {
     const newChapter = {
@@ -67,22 +118,29 @@ export default function NewShelfItemPage() {
       slug = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
     }
 
-    const { error: insertError } = await supabase
-      .from('shelf_items')
-      .insert({
-        title: formData.title,
-        slug: slug,
-        synopsis: formData.synopsis,
-        cover_image_url: formData.cover_image_url,
-        cta_url: formData.cta_url,
-        is_visible: formData.is_visible,
-        reader_mode: formData.reader_mode,
-        pdf_url: formData.pdf_url,
-        narrative_content: formData.narrative_content.map(({ title, content }) => ({ title, content }))
-      })
+    const payload = {
+      title: formData.title,
+      slug: slug,
+      synopsis: formData.synopsis,
+      cover_image_url: formData.cover_image_url,
+      cta_url: formData.cta_url,
+      is_visible: formData.is_visible,
+      reader_mode: formData.reader_mode,
+      pdf_url: formData.pdf_url,
+      narrative_content: formData.narrative_content.map(({ title, content }) => ({ title, content }))
+    }
 
-    if (insertError) {
-      setError(insertError.message)
+    let saveError
+    if (isNew) {
+      const { error } = await supabase.from('shelf_items').insert(payload)
+      saveError = error
+    } else {
+      const { error } = await supabase.from('shelf_items').update(payload).eq('id', id)
+      saveError = error
+    }
+
+    if (saveError) {
+      setError(saveError.message)
       setSaving(false)
     } else {
       router.push('/admin/shelf')
@@ -90,14 +148,28 @@ export default function NewShelfItemPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        <p className="text-slate-500 mt-4 font-serif italic uppercase tracking-widest text-[10px]">Retrieving Manuscript...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-4xl pb-32">
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-serif text-slate-900">New Library Entry</h1>
-          <p className="text-slate-500 mt-2">Design a premium reading experience for your audience.</p>
+          <Link href="/admin/shelf" className="flex items-center text-slate-400 hover:text-slate-900 transition-all font-bold text-[10px] uppercase tracking-widest mb-4">
+            <ArrowLeft className="w-3 h-3 mr-2" /> Back to Shelf
+          </Link>
+          <h1 className="text-3xl font-serif text-slate-900">{isNew ? 'New Library Entry' : 'Refine Collection'}</h1>
+          {!isNew && <p className="text-slate-500 mt-2">Editing entry: <span className="text-slate-900 font-bold">{formData.title}</span></p>}
         </div>
       </div>
+
+      {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 mb-8 text-sm">{error}</div>}
 
       <form onSubmit={handleSave} className="space-y-10">
         {/* Core Details */}
@@ -108,11 +180,11 @@ export default function NewShelfItemPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
-              <Input id="title" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="e.g. My Side" />
+              <Input id="title" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="slug">Custom Slug</Label>
-              <Input id="slug" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} placeholder="auto-generated" />
+              <Input id="slug" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} />
             </div>
           </div>
 
@@ -168,11 +240,10 @@ export default function NewShelfItemPage() {
             ))}
           </div>
 
-          {/* Conditional Content Inputs */}
-          <div className="pt-4 animate-in fade-in slide-in-from-top-2 duration-500">
+          <div className="pt-4">
             {formData.reader_mode === 'pdf' && (
               <div className="space-y-4 p-6 bg-slate-50 rounded-xl border border-slate-100">
-                <Label className="text-slate-900 font-bold">Upload Manuscript (PDF)</Label>
+                <Label className="text-slate-900 font-bold">{isNew ? 'Upload Manuscript (PDF)' : 'Update Manuscript (PDF)'}</Label>
                 <FileUploader 
                   bucket="media"
                   folder="shelf_pdfs"
@@ -180,7 +251,6 @@ export default function NewShelfItemPage() {
                   currentFile={formData.pdf_url}
                   onUploadSuccess={(url) => setFormData({ ...formData, pdf_url: url })}
                 />
-                <p className="text-[10px] text-slate-500 italic">This file will be optimized for the immersive mobile viewer.</p>
               </div>
             )}
 
@@ -189,7 +259,7 @@ export default function NewShelfItemPage() {
                 <div className="flex justify-between items-center">
                   <h3 className="font-bold text-slate-900 uppercase tracking-widest text-xs">Chapter Studio</h3>
                   <Button type="button" size="sm" onClick={addChapter} className="rounded-full gap-2">
-                    <Plus className="w-4 h-4" /> Add Chapter
+                    <Plus size={16} /> Add Chapter
                   </Button>
                 </div>
 
@@ -207,9 +277,9 @@ export default function NewShelfItemPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         <Button type="button" variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeChapter(chapter.id); }} className="text-red-400 hover:text-red-600 hover:bg-red-50">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 size={16} />
                         </Button>
-                        {chapter.isOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                        {chapter.isOpen ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
                       </div>
                     </div>
                     {chapter.isOpen && (
@@ -222,13 +292,6 @@ export default function NewShelfItemPage() {
                     )}
                   </div>
                 ))}
-                
-                {formData.narrative_content.length === 0 && (
-                  <div className="text-center py-20 border-2 border-dashed border-slate-100 rounded-2xl">
-                    <ScrollText className="w-8 h-8 text-slate-200 mx-auto mb-4" />
-                    <p className="text-slate-400 text-sm italic">Start your story by adding your first chapter.</p>
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -247,9 +310,9 @@ export default function NewShelfItemPage() {
             <Label htmlFor="is_visible" className="cursor-pointer font-bold text-sm">Visible to Public</Label>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button variant="outline" type="button" onClick={() => router.back()} className="flex-1 sm:flex-none bg-transparent border-white/20 text-white hover:bg-white/10 rounded-full px-8">Archive</Button>
+            <Button variant="outline" type="button" onClick={() => router.back()} className="flex-1 sm:flex-none bg-transparent border-white/20 text-white hover:bg-white/10 rounded-full px-8">Discard</Button>
             <Button type="submit" disabled={saving} className="flex-1 sm:flex-none bg-white text-slate-900 hover:bg-slate-100 rounded-full px-10 font-bold">
-              {saving ? 'Publishing...' : 'Publish Entry'}
+              {saving ? 'Saving...' : (isNew ? 'Publish Entry' : 'Update Entry')}
             </Button>
           </div>
         </div>

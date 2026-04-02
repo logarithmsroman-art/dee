@@ -13,10 +13,14 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Loader2, Mail, MailOpen, Archive, Trash2, Eye } from 'lucide-react'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import Mail from 'lucide-react/dist/esm/icons/mail'
+import MailOpen from 'lucide-react/dist/esm/icons/mail-open'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Eye from 'lucide-react/dist/esm/icons/eye'
 import Link from 'next/link'
 
-export default function InquiriesPage() {
+export function InquiriesListView() {
   const router = useRouter()
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

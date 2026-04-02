@@ -1,49 +1,26 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
 import { 
   Library, 
   FileText, 
   Inbox,
   ArrowRight,
   Plus
-} from 'lucide-react'
+} from 'lucide-react/dist/esm/icons'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-async function getStats() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
+import LibraryIcon from 'lucide-react/dist/esm/icons/library'
+import FileTextIcon from 'lucide-react/dist/esm/icons/file-text'
+import InboxIcon from 'lucide-react/dist/esm/icons/inbox'
+import ArrowRightIcon from 'lucide-react/dist/esm/icons/arrow-right'
+import PlusIcon from 'lucide-react/dist/esm/icons/plus'
 
-  const [
-    { count: shelfCount },
-    { count: articleCount },
-    { count: inquiryCount }
-  ] = await Promise.all([
-    supabase.from('shelf_items').select('*', { count: 'exact', head: true }),
-    supabase.from('articles').select('*', { count: 'exact', head: true }),
-    supabase.from('inquiries').select('*', { count: 'exact', head: true }),
-  ])
-
-  return {
-    shelfItems: shelfCount || 0,
-    articles: articleCount || 0,
-    inquiries: inquiryCount || 0,
-  }
+interface Stats {
+  shelfItems: number
+  articles: number
+  inquiries: number
 }
 
-export default async function AdminDashboardPage() {
-  const stats = await getStats()
-
+export function DashboardView({ stats }: { stats: Stats }) {
   return (
     <div className="space-y-8">
       <div>
@@ -59,7 +36,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-bold text-slate-900">{stats.shelfItems}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <Library size={24} />
+            <LibraryIcon size={24} />
           </div>
         </div>
 
@@ -69,7 +46,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-bold text-slate-900">{stats.articles}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <FileText size={24} />
+            <FileTextIcon size={24} />
           </div>
         </div>
 
@@ -79,7 +56,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-bold text-slate-900">{stats.inquiries}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <Inbox size={24} />
+            <InboxIcon size={24} />
           </div>
         </div>
       </div>
@@ -90,22 +67,21 @@ export default async function AdminDashboardPage() {
         <div className="flex flex-wrap gap-4">
           <Button asChild>
             <Link href="/admin/blogs/new" className="flex items-center gap-2">
-              <Plus size={16} /> Write New Article
+              <PlusIcon size={16} /> Write New Article
             </Link>
           </Button>
           <Button variant="secondary" asChild>
             <Link href="/admin/shelf/new" className="flex items-center gap-2">
-              <Plus size={16} /> Add New Book
+              <PlusIcon size={16} /> Add New Book
             </Link>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/inquiries" className="flex items-center gap-2">
-              View Inbox <ArrowRight size={16} />
+              View Inbox <ArrowRightIcon size={16} />
             </Link>
           </Button>
         </div>
       </div>
-
     </div>
   )
 }

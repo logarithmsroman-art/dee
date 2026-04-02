@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Button } from '@/components/ui/button'
@@ -8,14 +8,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { TiptapEditor } from '@/components/admin/TiptapEditor'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import Link from 'next/link'
 
-export default function NewBlogPage() {
+interface BlogEditViewProps {
+  id?: string
+}
+
+export function BlogEditView({ id }: BlogEditViewProps) {
   const router = useRouter()
+  const isNew = !id
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -28,7 +38,35 @@ export default function NewBlogPage() {
     is_published: false,
   })
 
-  const handleSave = async (e: React.FormEvent, publish: boolean = false) => {
+  useEffect(() => {
+    async function fetchData() {
+      if (isNew) return
+      
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      } else {
+        setFormData({
+          title: data.title || '',
+          slug: data.slug || '',
+          excerpt: data.excerpt || '',
+          feature_image_url: data.feature_image_url || '',
+          content: data.content || '',
+          is_published: data.is_published,
+        })
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [id, isNew, supabase])
+
+  const handleSave = async (e: React.FormEvent, publish?: boolean) => {
     e.preventDefault()
     setSaving(true)
     setError(null)
@@ -38,19 +76,31 @@ export default function NewBlogPage() {
       slug = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
     }
 
-    const { error: insertError } = await supabase
-      .from('articles')
-      .insert({
-        title: formData.title,
-        slug: slug,
-        excerpt: formData.excerpt,
-        feature_image_url: formData.feature_image_url,
-        content: formData.content,
-        is_published: publish,
-      })
+    const isActuallyPublished = publish !== undefined ? publish : formData.is_published
 
-    if (insertError) {
-      setError(insertError.message)
+    const payload = {
+      title: formData.title,
+      slug: slug,
+      excerpt: formData.excerpt,
+      feature_image_url: formData.feature_image_url,
+      content: formData.content,
+      is_published: isActuallyPublished,
+    }
+
+    let saveError
+    if (isNew) {
+      const { error } = await supabase.from('articles').insert(payload)
+      saveError = error
+    } else {
+      const { error } = await supabase
+        .from('articles')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', id)
+      saveError = error
+    }
+
+    if (saveError) {
+      setError(saveError.message)
       setSaving(false)
     } else {
       router.push('/admin/blogs')
@@ -58,11 +108,23 @@ export default function NewBlogPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        <p className="text-slate-500 mt-4 font-serif italic uppercase tracking-widest text-[10px]">Retrieving Article...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-serif text-slate-900">New Article</h1>
-        <p className="text-slate-500 mt-2">Write a new story or blog post.</p>
+        <Link href="/admin/blogs" className="flex items-center text-slate-400 hover:text-slate-900 transition-all font-bold text-[10px] uppercase tracking-widest mb-4">
+          <ArrowLeft className="w-3 h-3 mr-2" /> Back to Blogs
+        </Link>
+        <h1 className="text-3xl font-serif text-slate-900">{isNew ? 'New Article' : 'Revise Story'}</h1>
+        {!isNew && <p className="text-slate-500 mt-2">Editing: <span className="text-slate-900 font-bold">{formData.title}</span></p>}
       </div>
 
       {error && (
@@ -84,7 +146,7 @@ export default function NewBlogPage() {
           </div>
 
           <div className="space-y-2">
-           <Label>Excerpt</Label>
+            <Label>Excerpt</Label>
             <Input value={formData.excerpt} onChange={(e) => setFormData({...formData, excerpt: e.target.value})} />
           </div>
 
@@ -110,10 +172,10 @@ export default function NewBlogPage() {
         <div className="flex justify-end gap-3 pt-4">
           <Button variant="ghost" type="button" onClick={() => router.back()}>Cancel</Button>
           <Button variant="outline" type="button" disabled={saving} onClick={(e) => handleSave(e, false)}>
-            {saving ? 'Saving...' : 'Save Draft'}
+            {saving ? 'Saving...' : (isNew ? 'Save Draft' : 'Switch to Draft')}
           </Button>
           <Button type="button" disabled={saving} onClick={(e) => handleSave(e, true)}>
-            Publish Article
+            {isNew ? 'Publish Article' : 'Update & Publish'}
           </Button>
         </div>
       </form>
