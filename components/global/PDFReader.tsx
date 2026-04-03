@@ -99,11 +99,6 @@ export function PDFReader({ item }: PDFReaderProps) {
           className="md:hidden w-full h-full border-none shadow-inner bg-slate-100"
           title={`${item.title} - Mobile Viewer`}
         />
-        
-        {/* Mobile Optimizer Hint */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 lg:hidden bg-slate-900/80 backdrop-blur-md px-6 py-2 rounded-full border border-white/10 text-white/70 text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 shadow-2xl pointer-events-none">
-           Pinch to zoom for precision
-        </div>
       </div>
 
       <style jsx>{`
