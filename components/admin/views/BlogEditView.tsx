@@ -164,6 +164,7 @@ export function BlogEditView({ id }: BlogEditViewProps) {
               currentImage={formData.feature_image_url}
               onUploadSuccess={(url) => setFormData({...formData, feature_image_url: url})} 
             />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
             <div className="space-y-2">
               <Label>Category</Label>
