@@ -90,27 +90,33 @@ export default async function PublicRouterPage({
   if (!supabase) return notFound() // Should be caught by the check above, but for TS
 
   // Route: /
+  // Route: /
   if (slug.length === 0) {
-    const [
-      { data: latestShelfItems },
-      { data: latestArticles },
-      { data: services },
-      { data: settings }
-    ] = await Promise.all([
-      supabase.from('shelf_items').select('*').eq('is_visible', true).order('created_at', { ascending: false }).limit(1),
-      supabase.from('articles').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(1),
-      supabase.from('services').select('*').order('created_at', { ascending: true }).limit(3),
-      supabase.from('global_settings').select('*').maybeSingle()
-    ])
+    try {
+      const [
+        { data: latestShelfItems },
+        { data: latestArticles },
+        { data: services },
+        { data: settings }
+      ] = await Promise.all([
+        supabase.from('shelf_items').select('*').eq('is_visible', true).order('created_at', { ascending: false }).limit(1),
+        supabase.from('articles').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(1),
+        supabase.from('services').select('*').order('created_at', { ascending: true }).limit(3),
+        supabase.from('global_settings').select('*').maybeSingle()
+      ])
 
-    return (
-      <HomeView 
-        latestShelfItem={latestShelfItems?.[0]} 
-        latestArticle={latestArticles?.[0]}
-        services={services || []}
-        settings={settings || {}}
-      />
-    )
+      return (
+        <HomeView 
+          latestShelfItem={latestShelfItems?.[0]} 
+          latestArticle={latestArticles?.[0]}
+          services={services || []}
+          settings={settings || {}}
+        />
+      )
+    } catch (e) {
+      console.error('Root route fetch failure:', e)
+      return <HomeView services={[]} settings={{}} />
+    }
   }
 
   const primary = slug[0]
