@@ -42,6 +42,9 @@ export function MembersView() {
   }, [])
 
   const toggleBan = async (id: string, currentlyBanned: boolean) => {
+    const member = members.find(m => m.id === id)
+    if (member?.is_admin) return // Safety: can't ban admins
+    
     if (!window.confirm(`Are you sure you want to ${currentlyBanned ? 'unban' : 'ban'} this member?`)) return
     
     setActionLoading(id)
@@ -59,7 +62,8 @@ export function MembersView() {
   }
 
   const filteredMembers = members.filter(m => 
-    (m.display_name?.toLowerCase() || '').includes(search.toLowerCase())
+    (m.display_name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (m.id.toLowerCase()).includes(search.toLowerCase())
   )
 
   if (loading) return (
@@ -120,7 +124,11 @@ export function MembersView() {
                     </div>
                   </TableCell>
                   <TableCell className="py-6">
-                    {member.is_banned ? (
+                    {member.is_admin ? (
+                      <Badge className="bg-slate-900 text-white border-0 px-3 py-1 rounded-full font-bold uppercase text-[8px] tracking-widest">
+                        Library Curator
+                      </Badge>
+                    ) : member.is_banned ? (
                       <Badge className="bg-red-50 text-red-600 border border-red-100 px-3 py-1 rounded-full font-bold uppercase text-[8px] animate-pulse">
                         Access Revoked
                       </Badge>
@@ -134,22 +142,28 @@ export function MembersView() {
                     {new Date(member.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </TableCell>
                   <TableCell className="py-6 px-8 text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      disabled={actionLoading === member.id}
-                      onClick={() => toggleBan(member.id, member.is_banned)}
-                      className={`rounded-full h-10 w-10 p-0 transition-all ${member.is_banned ? 'text-green-500 hover:bg-green-50' : 'text-red-400 hover:bg-red-50'}`}
-                      title={member.is_banned ? "Restore Access" : "Revoke Access"}
-                    >
-                      {actionLoading === member.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : member.is_banned ? (
-                        <UserCheck size={18} />
-                      ) : (
-                        <UserMinus size={18} />
-                      )}
-                    </Button>
+                    {!member.is_admin ? (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        disabled={actionLoading === member.id}
+                        onClick={() => toggleBan(member.id, member.is_banned)}
+                        className={`rounded-full h-10 w-10 p-0 transition-all ${member.is_banned ? 'text-green-500 hover:bg-green-50' : 'text-red-400 hover:bg-red-50'}`}
+                        title={member.is_banned ? "Restore Access" : "Revoke Access"}
+                      >
+                        {actionLoading === member.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : member.is_banned ? (
+                          <UserCheck size={18} />
+                        ) : (
+                          <UserMinus size={18} />
+                        )}
+                      </Button>
+                    ) : (
+                      <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest px-4 py-2 border border-slate-100 rounded-full italic">
+                        Secured
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

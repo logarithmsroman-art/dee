@@ -100,6 +100,17 @@ export default async function AdminRouterPage({
     redirect('/admin/login')
   }
 
+  // SECONDARY CHECK: Is the user an admin?
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.is_admin) {
+    redirect('/')
+  }
+
   // Dynamic Routing Logic (Wrapped in authenticated layout)
   let content: ReactNode;
 
