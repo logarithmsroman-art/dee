@@ -98,7 +98,7 @@ export default async function PublicRouterPage({
       supabase.from('shelf_items').select('*').eq('is_visible', true).order('created_at', { ascending: false }).limit(1),
       supabase.from('articles').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(1),
       supabase.from('services').select('*').order('created_at', { ascending: true }).limit(3),
-      supabase.from('global_settings').select('*').limit(1).single()
+      supabase.from('global_settings').select('*').maybeSingle()
     ])
 
     return (
@@ -106,7 +106,7 @@ export default async function PublicRouterPage({
         latestShelfItem={latestShelfItems?.[0]} 
         latestArticle={latestArticles?.[0]}
         services={services || []}
-        settings={settings}
+        settings={settings || {}}
       />
     )
   }
@@ -156,8 +156,8 @@ export default async function PublicRouterPage({
 
   // Route: /contact
   if (primary === 'contact') {
-    const { data: settings } = await supabase.from('global_settings').select('contact_email, linkedin_url, twitter_url').single()
-    return <ContactView settings={settings} />
+    const { data: settings } = await supabase.from('global_settings').select('contact_email, linkedin_url, twitter_url').maybeSingle()
+    return <ContactView settings={settings || {}} />
   }
 
   return notFound()
