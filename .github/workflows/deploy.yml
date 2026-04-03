@@ -25,7 +25,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build Next.js app for Cloudflare
-        run: npx @cloudflare/next-on-pages
+        run: npx @opennextjs/cloudflare
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -36,6 +36,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: 'dee' # This will be the name of your Cloudflare Pages project
-          directory: '.vercel/output/static'
+          directory: '.open-next'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main

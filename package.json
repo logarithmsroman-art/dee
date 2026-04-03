@@ -5,10 +5,13 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build",
+    "deploy": "opennextjs-cloudflare",
+    "preview": "opennextjs-cloudflare && wrangler pages dev .open-next",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^0.6.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "@tailwindcss/typography": "^0.5.19",
