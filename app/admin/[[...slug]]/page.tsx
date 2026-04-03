@@ -22,9 +22,9 @@ import { SettingsView } from '@/components/admin/views/SettingsView'
 // Wrapper for Authenticated Pages
 function AuthenticatedLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar className="w-64 fixed inset-y-0 z-50 flex-shrink-0" />
-      <main className="flex-1 ml-64 p-8">
+    <div className="flex min-h-screen bg-slate-50 flex-col md:flex-row">
+      <AdminSidebar />
+      <main className="flex-1 pt-14 pb-20 px-4 md:pt-8 md:pb-8 md:px-8 w-full">
         <div className="max-w-6xl mx-auto">
           {children}
         </div>

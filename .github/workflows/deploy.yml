@@ -34,7 +34,7 @@ jobs:
         run: |
           mv .open-next/worker.js .open-next/_worker.js
           cp -r .open-next/assets/* .open-next/
-          echo '{"version": 1, "include": ["/*"], "exclude": ["/_next/*", "/favicon.ico", "/*.svg", "/*.png", "/*.jpg", "/*.jpeg", "/hero/*", "/shelf/*"]}' > .open-next/_routes.json
+          echo '{"version": 1, "include": ["/*"], "exclude": ["/_next/*", "/favicon.ico", "/*.svg", "/*.png", "/*.jpg", "/*.jpeg", "/hero/*"]}' > .open-next/_routes.json
           npx wrangler pages deploy .open-next --project-name=dee --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
