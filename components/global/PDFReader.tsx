@@ -86,10 +86,18 @@ export function PDFReader({ item }: PDFReaderProps) {
 
       {/* PDF Container - TOOLBAR SUPPRESSED */}
       <div className="flex-1 relative bg-slate-800">
+        {/* Desktop Native Viewer */}
         <iframe
           src={`${item.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-          className="w-full h-full border-none shadow-inner"
-          title={item.title}
+          className="hidden md:block w-full h-full border-none shadow-inner"
+          title={`${item.title} - Desktop Viewer`}
+        />
+        
+        {/* Mobile Google Docs Fallback */}
+        <iframe
+          src={`https://docs.google.com/gview?url=${item.pdf_url}&embedded=true`}
+          className="md:hidden w-full h-full border-none shadow-inner bg-slate-100"
+          title={`${item.title} - Mobile Viewer`}
         />
         
         {/* Mobile Optimizer Hint */}
