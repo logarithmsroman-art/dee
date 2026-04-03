@@ -3,12 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Menu } from 'lucide-react';
-import { X } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
-import { ChevronRight } from 'lucide-react';
-import { Clock } from 'lucide-react';
+import { Menu, X, ArrowLeft, ChevronRight, Clock, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { AuthModal } from '@/components/auth/AuthModal'
+import { useMember } from '@/hooks/useMember'
 
 interface Chapter {
   title: string
@@ -26,8 +24,14 @@ interface NarrativeReaderProps {
 export function NarrativeReader({ item }: NarrativeReaderProps) {
   const [activeChapterIndex, setActiveChapterIndex] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const { user, isAuthenticated } = useMember()
+  
   const chapters = item.narrative_content || []
   const activeChapter = chapters[activeChapterIndex]
+
+  // Gate Logic: Only the first chapter is free
+  const isLocked = activeChapterIndex > 0 && !isAuthenticated
 
   // Progress bar calculation
   const [readingProgress, setReadingProgress] = useState(0)
@@ -50,8 +54,20 @@ export function NarrativeReader({ item }: NarrativeReaderProps) {
     )
   }
 
+  const handleChapterSwitch = (idx: number) => {
+    if (idx > 0 && !isAuthenticated) {
+      setAuthModalOpen(true)
+      return
+    }
+    setActiveChapterIndex(idx)
+    setIsSidebarOpen(false)
+    window.scrollTo(0, 0)
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex">
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex w-80 border-r border-slate-100 flex-col sticky top-0 h-screen bg-white/50 backdrop-blur-sm">
         <div className="p-8 border-b border-slate-100">
@@ -66,23 +82,30 @@ export function NarrativeReader({ item }: NarrativeReaderProps) {
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
           <div className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Chapters</div>
-          {chapters.map((chapter, idx) => (
-            <button
-              key={idx}
-              onClick={() => { setActiveChapterIndex(idx); window.scrollTo(0, 0); }}
-              className={`w-full text-left px-4 py-4 rounded-lg transition-all flex items-center justify-between group ${
-                activeChapterIndex === idx 
-                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
-                  : 'hover:bg-slate-50 text-slate-600'
-              }`}
-            >
-              <div className="flex flex-col">
-                <span className={`text-[10px] mb-1 uppercase tracking-widest font-bold ${activeChapterIndex === idx ? 'text-amber-400' : 'text-slate-400'}`}>0{idx + 1}</span>
-                <span className="font-serif text-sm truncate max-w-[180px]">{chapter.title}</span>
-              </div>
-              <ChevronRight className={`w-3 h-3 transition-transform ${activeChapterIndex === idx ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'}`} />
-            </button>
-          ))}
+          {chapters.map((chapter, idx) => {
+            const chapterLocked = idx > 0 && !isAuthenticated
+            return (
+              <button
+                key={idx}
+                onClick={() => handleChapterSwitch(idx)}
+                className={`w-full text-left px-4 py-4 rounded-lg transition-all flex items-center justify-between group ${
+                  activeChapterIndex === idx 
+                    ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
+                    : 'hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span className={`text-[10px] mb-1 uppercase tracking-widest font-bold ${activeChapterIndex === idx ? 'text-amber-400' : 'text-slate-400'}`}>0{idx + 1}</span>
+                  <span className="font-serif text-sm truncate max-w-[180px]">{chapter.title}</span>
+                </div>
+                {chapterLocked ? (
+                  <Lock className="w-3 h-3 text-slate-300" />
+                ) : (
+                  <ChevronRight className={`w-3 h-3 transition-transform ${activeChapterIndex === idx ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+                )}
+              </button>
+            )
+          })}
         </nav>
 
         <div className="p-8 border-t border-slate-100">
@@ -123,38 +146,60 @@ export function NarrativeReader({ item }: NarrativeReaderProps) {
 
           <header className="mb-20 text-center space-y-6">
             <h2 className="text-4xl md:text-6xl font-serif text-slate-900 leading-tight">
-              {activeChapter.title}
+              {isLocked ? "Continuation Gated" : activeChapter.title}
             </h2>
             <div className="w-12 h-px bg-amber-500/40 mx-auto" />
             <p className="text-slate-400 text-[10px] uppercase tracking-[0.3em] font-bold">Part 0{activeChapterIndex + 1} / 0{chapters.length}</p>
           </header>
 
-          <div 
-            className="editorial-reading-area prose prose-slate prose-lg md:prose-xl max-w-none prose-p:font-light prose-p:leading-[1.8] prose-p:text-slate-800 prose-p:mb-10 prose-headings:font-serif prose-headings:text-slate-900 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-amber-900 prose-blockquote:border-amber-500 prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-slate-100"
-            dangerouslySetInnerHTML={{ __html: activeChapter.content }}
-          />
-
-          <footer className="mt-32 pt-16 border-t border-slate-100 flex flex-col items-center gap-12">
-            <div className="text-center space-y-4">
-              <p className="text-slate-400 italic font-serif">End of Chapter</p>
-              <div className="flex gap-2">
-                 {[1,2,3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-slate-200" />)}
+          {isLocked ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center">
+                <Lock className="w-10 h-10 text-amber-600" />
               </div>
-            </div>
-
-            {activeChapterIndex < chapters.length - 1 && (
+              <div className="space-y-4">
+                <h3 className="text-3xl font-serif text-slate-900">Unlock the Full Manuscript</h3>
+                <p className="text-slate-500 max-w-md mx-auto font-light leading-relaxed italic">
+                  Dee's narrative depth is reserved for our community of readers. Join the library to reveal all chapters and exclusive storytelling.
+                </p>
+              </div>
               <Button 
-                onClick={() => { setActiveChapterIndex(v => v + 1); window.scrollTo(0, 0); }}
-                className="group px-12 py-8 bg-slate-900 text-white rounded-full flex items-center gap-4 hover:bg-amber-600 transition-all shadow-xl shadow-slate-200"
+                onClick={() => setAuthModalOpen(true)}
+                className="px-16 py-8 bg-slate-900 text-white rounded-full font-bold uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-slate-200 hover:bg-amber-600 transition-all scale-110"
               >
-                <div className="text-left">
-                  <span className="block text-[8px] uppercase tracking-widest text-amber-400 font-bold">Next Up</span>
-                  <span className="block font-serif text-lg">{chapters[activeChapterIndex + 1].title}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Join the Library
               </Button>
-            )}
-          </footer>
+            </div>
+          ) : (
+            <div 
+              className="editorial-reading-area prose prose-slate prose-lg md:prose-xl max-w-none prose-p:font-light prose-p:leading-[1.8] prose-p:text-slate-800 prose-p:mb-10 prose-headings:font-serif prose-headings:text-slate-900 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-amber-900 prose-blockquote:border-amber-500 prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-slate-100"
+              dangerouslySetInnerHTML={{ __html: activeChapter.content }}
+            />
+          )}
+
+          {!isLocked && (
+            <footer className="mt-32 pt-16 border-t border-slate-100 flex flex-col items-center gap-12">
+              <div className="text-center space-y-4">
+                <p className="text-slate-400 italic font-serif">End of Chapter</p>
+                <div className="flex gap-2">
+                   {[1,2,3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-slate-200" />)}
+                </div>
+              </div>
+
+              {activeChapterIndex < chapters.length - 1 && (
+                <Button 
+                  onClick={() => handleChapterSwitch(activeChapterIndex + 1)}
+                  className="group px-12 py-8 bg-slate-900 text-white rounded-full flex items-center gap-4 hover:bg-amber-600 transition-all shadow-xl shadow-slate-200"
+                >
+                  <div className="text-left">
+                    <span className="block text-[8px] uppercase tracking-widest text-amber-400 font-bold">Next Up</span>
+                    <span className="block font-serif text-lg">{chapters[activeChapterIndex + 1].title}</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              )}
+            </footer>
+          )}
         </div>
       </main>
 
@@ -170,18 +215,24 @@ export function NarrativeReader({ item }: NarrativeReaderProps) {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {chapters.map((chapter, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => { setActiveChapterIndex(idx); setIsSidebarOpen(false); window.scrollTo(0, 0); }}
-                  className={`w-full text-left p-4 rounded-xl flex flex-col gap-1 transition-all ${
-                    activeChapterIndex === idx ? 'bg-slate-900 text-white' : 'hover:bg-slate-50'
-                  }`}
-                >
-                  <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${activeChapterIndex === idx ? 'text-amber-400' : 'text-slate-400'}`}>0{idx + 1}</span>
-                  <span className="font-serif text-base">{chapter.title}</span>
-                </button>
-              ))}
+              {chapters.map((chapter, idx) => {
+                const chapterLocked = idx > 0 && !isAuthenticated
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleChapterSwitch(idx)}
+                    className={`w-full text-left p-4 rounded-xl flex flex-col gap-1 transition-all ${
+                      activeChapterIndex === idx ? 'bg-slate-900 text-white' : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${activeChapterIndex === idx ? 'text-amber-400' : 'text-slate-400'}`}>0{idx + 1}</span>
+                      {chapterLocked && <Lock className="w-3 h-3 opacity-40" />}
+                    </div>
+                    <span className="font-serif text-base">{chapter.title}</span>
+                  </button>
+                )
+              })}
             </div>
           </nav>
         </div>
