@@ -14,18 +14,19 @@ import { ContactView } from '@/components/public/views/ContactView'
 export const runtime = 'edge';
 
 async function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) return null
+
   const cookieStore = await cookies()
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
+  return createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
       },
-    }
-  )
+    },
+  })
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }) {
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug?: st
   const slug = resolvedParams.slug || []
   const supabase = await getSupabase()
 
-  if (slug.length === 0) return { title: "Dee's Pen House | Architect of Narratives" }
+  if (!supabase || slug.length === 0) return { title: "Dee's Pen House | Architect of Narratives" }
 
   const primary = slug[0]
   const secondary = slug[1]
@@ -86,6 +87,7 @@ export default async function PublicRouterPage({
   }
 
   const supabase = await getSupabase()
+  if (!supabase) return notFound() // Should be caught by the check above, but for TS
 
   // Route: /
   if (slug.length === 0) {
