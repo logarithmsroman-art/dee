@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { submitInquiry } from '@/app/contact/actions'
+import { submitInquiry } from '@/lib/actions/public'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
