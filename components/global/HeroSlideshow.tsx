@@ -33,6 +33,11 @@ export interface HeroSlideshowProps {
 
 export function HeroSlideshow({ settings }: HeroSlideshowProps) {
   const [current, setCurrent] = useState(0)
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const activeSlides = [
     {
@@ -58,11 +63,12 @@ export function HeroSlideshow({ settings }: HeroSlideshowProps) {
   }, [])
 
   const startTimer = useCallback(() => {
+    if (!mounted) return
     stopTimer()
     timerRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % activeSlides.length)
     }, SLIDE_DURATION)
-  }, [stopTimer, activeSlides.length])
+  }, [stopTimer, activeSlides.length, mounted])
 
   useEffect(() => {
     startTimer()
@@ -90,6 +96,7 @@ export function HeroSlideshow({ settings }: HeroSlideshowProps) {
             fill
             className="object-cover"
             priority={i === 0}
+            unoptimized
           />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
