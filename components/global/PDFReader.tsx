@@ -130,9 +130,9 @@ export function PDFReader({ item }: PDFReaderProps) {
             <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-8 border border-white/20">
               <Lock className="w-8 h-8 text-amber-500" />
             </div>
-            <h2 className="text-3xl font-serif text-white mb-6">Subscription Required</h2>
+            <h2 className="text-3xl font-serif text-white mb-6">Sign In Required</h2>
             <p className="text-white/60 mb-10 max-w-sm font-light leading-relaxed italic">
-              This manuscript is part of Dee's private collection. Please join the library to access the full text.
+              This manuscript is part of Dee's private collection. Please sign in or sign up to reveal the full text.
             </p>
             <Button 
               size="lg" 

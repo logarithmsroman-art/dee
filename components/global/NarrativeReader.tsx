@@ -158,9 +158,9 @@ export function NarrativeReader({ item }: NarrativeReaderProps) {
                 <Lock className="w-10 h-10 text-amber-600" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-3xl font-serif text-slate-900">Unlock the Full Manuscript</h3>
+                <h3 className="text-3xl font-serif text-slate-900">Sign In Required</h3>
                 <p className="text-slate-500 max-w-md mx-auto font-light leading-relaxed italic">
-                  Dee's narrative depth is reserved for our community of readers. Join the library to reveal all chapters and exclusive storytelling.
+                  Dee's narrative depth is reserved for the community. Please sign in or sign up to reveal all chapters and exclusive storytelling.
                 </p>
               </div>
               <Button 
