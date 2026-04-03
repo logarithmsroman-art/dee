@@ -34,7 +34,8 @@ export async function submitInquiry(formData: FormData) {
         email,
         subject: subject || 'General Inquiry',
         message,
-        status: 'new'
+        is_read: false,
+        is_archived: false
       },
     ])
 
