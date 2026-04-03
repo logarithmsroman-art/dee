@@ -13,11 +13,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Mail from 'lucide-react/dist/esm/icons/mail'
-import MailOpen from 'lucide-react/dist/esm/icons/mail-open'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Eye from 'lucide-react/dist/esm/icons/eye'
+import { Loader2 } from 'lucide-react'
+import { Mail } from 'lucide-react'
+import { MailOpen } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import Link from 'next/link'
 
 export function InquiriesListView() {

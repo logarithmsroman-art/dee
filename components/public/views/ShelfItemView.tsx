@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import { ArrowLeft } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { NarrativeReader } from '@/components/global/NarrativeReader'
 import { PDFReader } from '@/components/global/PDFReader'
 

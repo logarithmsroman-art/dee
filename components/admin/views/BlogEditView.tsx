@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { TiptapEditor } from '@/components/admin/TiptapEditor'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import { Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 interface BlogEditViewProps {

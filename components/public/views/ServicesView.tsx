@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right'
+import { ArrowRight } from 'lucide-react'
 import { InkBackground } from '@/components/global/InkBackground'
 
 interface ServicesViewProps {

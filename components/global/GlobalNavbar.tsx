@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Menu from 'lucide-react/dist/esm/icons/menu';
-import X from 'lucide-react/dist/esm/icons/x';
+import { Menu } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export function GlobalNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

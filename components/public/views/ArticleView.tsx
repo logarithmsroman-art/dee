@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import { ArrowLeft } from 'lucide-react'
 
 interface ArticleViewProps {
   article: any

@@ -8,11 +8,11 @@ import {
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-import LibraryIcon from 'lucide-react/dist/esm/icons/library'
-import FileTextIcon from 'lucide-react/dist/esm/icons/file-text'
-import InboxIcon from 'lucide-react/dist/esm/icons/inbox'
-import ArrowRightIcon from 'lucide-react/dist/esm/icons/arrow-right'
-import PlusIcon from 'lucide-react/dist/esm/icons/plus'
+import { LibraryIcon } from 'lucide-react'
+import { FileTextIcon } from 'lucide-react'
+import { InboxIcon } from 'lucide-react'
+import { ArrowRightIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 interface Stats {
   shelfItems: number

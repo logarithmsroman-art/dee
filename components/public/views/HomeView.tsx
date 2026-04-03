@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right'
+import { ArrowRight } from 'lucide-react'
 import { FadeIn, ScrollReveal } from '@/components/global/FadeIn'
 import { HeroSlideshow } from '@/components/global/HeroSlideshow'
 import { WritersPattern } from '@/components/global/WritersPattern'

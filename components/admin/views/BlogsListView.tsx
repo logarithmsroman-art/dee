@@ -14,10 +14,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Edit from 'lucide-react/dist/esm/icons/edit'
-import Trash from 'lucide-react/dist/esm/icons/trash'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
+import { Plus } from 'lucide-react'
+import { Edit } from 'lucide-react'
+import { Trash } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export function BlogsListView() {
   const router = useRouter()

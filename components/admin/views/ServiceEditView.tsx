@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import { Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 interface ServiceEditViewProps {

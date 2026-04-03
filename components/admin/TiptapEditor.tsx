@@ -3,12 +3,12 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
-import Bold from 'lucide-react/dist/esm/icons/bold'
-import Italic from 'lucide-react/dist/esm/icons/italic'
-import List from 'lucide-react/dist/esm/icons/list'
-import ListOrdered from 'lucide-react/dist/esm/icons/list-ordered'
-import Heading2 from 'lucide-react/dist/esm/icons/heading-2'
-import Quote from 'lucide-react/dist/esm/icons/quote'
+import { Bold } from 'lucide-react'
+import { Italic } from 'lucide-react'
+import { List } from 'lucide-react'
+import { ListOrdered } from 'lucide-react'
+import { Heading2 } from 'lucide-react'
+import { Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface TiptapEditorProps {

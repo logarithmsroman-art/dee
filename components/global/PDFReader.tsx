@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import X from 'lucide-react/dist/esm/icons/x'
-import Download from 'lucide-react/dist/esm/icons/download'
+import { ArrowLeft } from 'lucide-react'
+import { Maximize2 } from 'lucide-react'
+import { X } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface PDFReaderProps {
