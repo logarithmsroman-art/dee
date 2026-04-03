@@ -4,7 +4,7 @@ import "./globals.css";
 import { GlobalNavbar } from "@/components/global/GlobalNavbar";
 import { Footer } from "@/components/global/Footer";
 
-export const runtime = 'edge';
+;
 
 const inter = Inter({
   variable: "--font-sans",

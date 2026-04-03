@@ -11,7 +11,7 @@ import { ShelfListView } from '@/components/public/views/ShelfListView'
 import { ShelfItemView } from '@/components/public/views/ShelfItemView'
 import { ContactView } from '@/components/public/views/ContactView'
 
-export const runtime = 'edge';
+;
 
 async function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL

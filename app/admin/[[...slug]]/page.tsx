@@ -17,7 +17,7 @@ import { InquiriesListView } from '@/components/admin/views/InquiriesListView'
 import { InquiryDetailView } from '@/components/admin/views/InquiryDetailView'
 import { SettingsView } from '@/components/admin/views/SettingsView'
 
-export const runtime = 'edge';
+;
 
 // Wrapper for Authenticated Pages
 function AuthenticatedLayout({ children }: { children: ReactNode }) {
