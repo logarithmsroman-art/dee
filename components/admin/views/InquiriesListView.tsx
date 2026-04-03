@@ -44,10 +44,10 @@ export function InquiriesListView() {
     loadInquiries()
   }, [])
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, is_read: boolean) => {
     const { error } = await supabase
       .from('inquiries')
-      .update({ status })
+      .update({ is_read })
       .eq('id', id)
 
     if (error) alert(error.message)
@@ -103,12 +103,13 @@ export function InquiriesListView() {
                   <TableCell className="font-bold text-slate-900">{inquiry.name}</TableCell>
                   <TableCell className="text-slate-500">{inquiry.email}</TableCell>
                   <TableCell>
-                    {inquiry.status === 'unread' ? (
-                      <Badge className="bg-amber-500 text-white border-0 hover:bg-amber-600 font-bold">New</Badge>
-                    ) : inquiry.status === 'archived' ? (
-                      <Badge variant="outline" className="text-slate-400 border-slate-200 font-bold uppercase text-[8px]">Archived</Badge>
+                    {inquiry.is_read ? (
+                       <Badge variant="outline" className="text-slate-500 border-slate-200 font-bold uppercase text-[8px]">Replied</Badge>
                     ) : (
-                      <Badge variant="outline" className="text-slate-500 border-slate-200 font-bold uppercase text-[8px]">Read</Badge>
+                      <Badge className="bg-amber-500 text-white border-0 hover:bg-amber-600 font-bold">New</Badge>
+                    )}
+                    {inquiry.is_archived && (
+                      <Badge variant="outline" className="text-slate-400 border-slate-200 font-bold uppercase text-[8px] ml-2">Archived</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -119,12 +120,12 @@ export function InquiriesListView() {
                         </Link>
                       </Button>
                       
-                      {inquiry.status === 'unread' ? (
-                        <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, 'read')} className="text-slate-400 hover:text-slate-900">
+                      {!inquiry.is_read ? (
+                        <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, true)} className="text-slate-400 hover:text-slate-900">
                            <Mail size={16} />
                         </Button>
                       ) : (
-                        <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, 'unread')} className="text-amber-500">
+                        <Button variant="ghost" size="sm" onClick={() => updateStatus(inquiry.id, false)} className="text-amber-500">
                            <MailOpen size={16} />
                         </Button>
                       )}

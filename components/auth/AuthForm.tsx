@@ -40,7 +40,7 @@ export function AuthForm() {
           },
         })
         if (error) throw error
-        setMessage('Check your email to confirm your membership!')
+        setMessage('Verification sent. Check your email to confirm your membership!')
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -60,12 +60,12 @@ export function AuthForm() {
     <div className="space-y-6">
       <div className="text-center space-y-2 pb-4">
         <h2 className="text-2xl font-serif text-slate-900">
-          {mode === 'signin' ? 'Welcome Back' : 'Join the Library'}
+          {mode === 'signin' ? 'Welcome Back' : 'Sign In'}
         </h2>
-        <p className="text-sm text-slate-500 font-light">
+        <p className="text-xs text-slate-500 font-light italic">
           {mode === 'signin' 
-            ? 'Sign in to access premium manuscripts.' 
-            : 'Subscribe for exclusive access to the full collection.'}
+            ? 'Sign in to access the private collection.' 
+            : 'Join the library for exclusive access to the full collection.'}
         </p>
       </div>
 
@@ -136,7 +136,7 @@ export function AuthForm() {
           disabled={loading}
           className="w-full h-12 mt-4 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold tracking-widest uppercase text-xs"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'signin' ? 'Authenticate' : 'Subscribe')}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'signin' ? 'Sign In' : 'Join')}
         </Button>
       </form>
 

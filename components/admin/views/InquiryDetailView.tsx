@@ -36,14 +36,22 @@ export function InquiryDetailView({ id }: InquiryDetailViewProps) {
       if (data) {
         setInquiry(data)
         // Auto-mark as read
-        if (data.status === 'unread') {
-          await supabase.from('inquiries').update({ status: 'read' }).eq('id', id)
+        if (!data.is_read) {
+          await supabase.from('inquiries').update({ is_read: true }).eq('id', id)
         }
       }
       setLoading(false)
     }
     if (id) loadInquiry()
   }, [id, supabase])
+
+  const toggleArchive = async () => {
+    const { error } = await supabase.from('inquiries').update({ is_archived: !inquiry.is_archived }).eq('id', id)
+    if (!error) {
+       setInquiry({ ...inquiry, is_archived: !inquiry.is_archived })
+       router.refresh()
+    }
+  }
 
   const deleteInquiry = async () => {
     if (!window.confirm('Delete message permanently?')) return
@@ -62,8 +70,8 @@ export function InquiryDetailView({ id }: InquiryDetailViewProps) {
           <ArrowLeft className="w-3 h-3 mr-2" /> Back to Inbox
         </Link>
         <div className="flex gap-2">
-           <Button variant="outline" size="sm" onClick={() => router.push('/admin/inquiries')} className="rounded-full gap-2">
-             <Archive size={14} className="text-slate-400" /> Archive
+           <Button variant={inquiry.is_archived ? "default" : "outline"} size="sm" onClick={toggleArchive} className="rounded-full gap-2">
+             <Archive size={14} className={inquiry.is_archived ? "text-white" : "text-slate-400"} /> {inquiry.is_archived ? 'Unarchive' : 'Archive'}
            </Button>
            <Button variant="ghost" size="sm" onClick={deleteInquiry} className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full gap-2">
              <Trash2 size={14} /> Remove
