@@ -33,6 +33,7 @@ jobs:
       - name: Prep and Deploy to Cloudflare Pages
         run: |
           mv .open-next/worker.js .open-next/_worker.js
+          cp -r .open-next/assets/* .open-next/
           echo '{"version": 1, "include": ["/*"], "exclude": ["/assets/*", "/_next/*"]}' > .open-next/_routes.json
           npx wrangler pages deploy .open-next --project-name=dee --branch=main
         env:
