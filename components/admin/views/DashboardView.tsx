@@ -4,15 +4,9 @@ import {
   Inbox,
   ArrowRight,
   Plus
-} from 'lucide-react/dist/esm/icons'
+} from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-
-import { LibraryIcon } from 'lucide-react'
-import { FileTextIcon } from 'lucide-react'
-import { InboxIcon } from 'lucide-react'
-import { ArrowRightIcon } from 'lucide-react'
-import { PlusIcon } from 'lucide-react'
 
 interface Stats {
   shelfItems: number
@@ -36,7 +30,7 @@ export function DashboardView({ stats }: { stats: Stats }) {
             <p className="text-3xl font-bold text-slate-900">{stats.shelfItems}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <LibraryIcon size={24} />
+            <Library size={24} />
           </div>
         </div>
 
@@ -46,7 +40,7 @@ export function DashboardView({ stats }: { stats: Stats }) {
             <p className="text-3xl font-bold text-slate-900">{stats.articles}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <FileTextIcon size={24} />
+            <FileText size={24} />
           </div>
         </div>
 
@@ -56,7 +50,7 @@ export function DashboardView({ stats }: { stats: Stats }) {
             <p className="text-3xl font-bold text-slate-900">{stats.inquiries}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg text-slate-400">
-            <InboxIcon size={24} />
+            <Inbox size={24} />
           </div>
         </div>
       </div>
@@ -67,17 +61,17 @@ export function DashboardView({ stats }: { stats: Stats }) {
         <div className="flex flex-wrap gap-4">
           <Button asChild>
             <Link href="/admin/blogs/new" className="flex items-center gap-2">
-              <PlusIcon size={16} /> Write New Article
+              <Plus size={16} /> Write New Article
             </Link>
           </Button>
           <Button variant="secondary" asChild>
             <Link href="/admin/shelf/new" className="flex items-center gap-2">
-              <PlusIcon size={16} /> Add New Book
+              <Plus size={16} /> Add New Book
             </Link>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/inquiries" className="flex items-center gap-2">
-              View Inbox <ArrowRightIcon size={16} />
+              View Inbox <ArrowRight size={16} />
             </Link>
           </Button>
         </div>
