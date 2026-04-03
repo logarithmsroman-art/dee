@@ -63,6 +63,28 @@ export default async function PublicRouterPage({
 }) {
   const resolvedParams = await params
   const slug = resolvedParams.slug || []
+
+  // Safety Check: Verify Env Vars are present on the Edge
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+        <div className="max-w-md w-full bg-white p-8 editorial-card border-amber-200">
+          <h1 className="text-2xl font-serif text-slate-900 mb-4">Configuration Required</h1>
+          <p className="text-slate-600 mb-6 font-light leading-relaxed">
+            The Edge Worker is active, but the <strong>Supabase Credentials</strong> are missing from your Cloudflare Dashboard Environment Variables.
+          </p>
+          <div className="bg-amber-50 p-4 rounded text-sm text-amber-800 space-y-2 font-mono">
+            <div>NEXT_PUBLIC_SUPABASE_URL</div>
+            <div>NEXT_PUBLIC_SUPABASE_ANON_KEY</div>
+          </div>
+          <p className="mt-6 text-xs text-slate-400 italic">
+            Please add these in Cloudflare Settings then go to Functions then Variables and then Redeploy.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   const supabase = await getSupabase()
 
   // Route: /
