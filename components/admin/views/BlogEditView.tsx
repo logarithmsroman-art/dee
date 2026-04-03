@@ -35,6 +35,8 @@ export function BlogEditView({ id }: BlogEditViewProps) {
     excerpt: '',
     feature_image_url: '',
     content: '',
+    category: 'General',
+    reading_time_minutes: 5,
     is_published: false,
   })
 
@@ -58,6 +60,8 @@ export function BlogEditView({ id }: BlogEditViewProps) {
           excerpt: data.excerpt || '',
           feature_image_url: data.feature_image_url || '',
           content: data.content || '',
+          category: data.category || 'General',
+          reading_time_minutes: data.reading_time_minutes || 5,
           is_published: data.status === 'published',
         })
         setLoading(false)
@@ -84,6 +88,8 @@ export function BlogEditView({ id }: BlogEditViewProps) {
       excerpt: formData.excerpt,
       feature_image_url: formData.feature_image_url,
       content: formData.content,
+      category: formData.category,
+      reading_time_minutes: parseInt(formData.reading_time_minutes as any) || 0,
       status: isActuallyPublished ? 'published' : 'draft',
     }
 
@@ -158,6 +164,23 @@ export function BlogEditView({ id }: BlogEditViewProps) {
               currentImage={formData.feature_image_url}
               onUploadSuccess={(url) => setFormData({...formData, feature_image_url: url})} 
             />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Input 
+                value={formData.category} 
+                onChange={(e) => setFormData({...formData, category: e.target.value})} 
+                placeholder="e.g. Storytelling, Strategy"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Reading Time (Minutes)</Label>
+              <Input 
+                type="number"
+                value={formData.reading_time_minutes} 
+                onChange={(e) => setFormData({...formData, reading_time_minutes: parseInt(e.target.value) || 0})} 
+              />
+            </div>
           </div>
         </div>
 

@@ -15,6 +15,7 @@ import { ServicesListView } from '@/components/admin/views/ServicesListView'
 import { ServiceEditView } from '@/components/admin/views/ServiceEditView'
 import { InquiriesListView } from '@/components/admin/views/InquiriesListView'
 import { InquiryDetailView } from '@/components/admin/views/InquiryDetailView'
+import { MembersView } from '@/components/admin/views/MembersView'
 import { SettingsView } from '@/components/admin/views/SettingsView'
 
 ;
@@ -50,17 +51,20 @@ async function getStats() {
   const [
     { count: shelfCount },
     { count: articleCount },
-    { count: inquiryCount }
+    { count: inquiryCount },
+    { count: profilesCount }
   ] = await Promise.all([
     supabase.from('shelf_items').select('*', { count: 'exact', head: true }),
     supabase.from('articles').select('*', { count: 'exact', head: true }),
     supabase.from('inquiries').select('*', { count: 'exact', head: true }),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
   ])
 
   return {
     shelfItems: shelfCount || 0,
     articles: articleCount || 0,
     inquiries: inquiryCount || 0,
+    members: profilesCount || 0,
   }
 }
 
@@ -128,6 +132,10 @@ export default async function AdminRouterPage({
     else if (secondary === 'new') content = <ServiceEditView />
     else if (secondary === 'edit' && tertiary) content = <ServiceEditView id={tertiary} />
     else content = notFound()
+  } 
+  // Route: /admin/members
+  else if (primary === 'members') {
+    content = <MembersView />
   } 
   // Route: /admin/inquiries
   else if (primary === 'inquiries') {

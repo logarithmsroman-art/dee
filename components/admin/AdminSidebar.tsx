@@ -16,6 +16,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/shelf', label: 'Shelf', icon: Library },
   { href: '/admin/blogs', label: 'Blog', icon: FileText },
+  { href: '/admin/members', label: 'Members', icon: Briefcase },
   { href: '/admin/services', label: 'Services', icon: Briefcase },
   { href: '/admin/inquiries', label: 'Inbox', icon: Inbox },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
