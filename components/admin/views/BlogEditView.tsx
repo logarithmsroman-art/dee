@@ -58,7 +58,7 @@ export function BlogEditView({ id }: BlogEditViewProps) {
           excerpt: data.excerpt || '',
           feature_image_url: data.feature_image_url || '',
           content: data.content || '',
-          is_published: data.is_published,
+          is_published: data.status === 'published',
         })
         setLoading(false)
       }
@@ -84,7 +84,7 @@ export function BlogEditView({ id }: BlogEditViewProps) {
       excerpt: formData.excerpt,
       feature_image_url: formData.feature_image_url,
       content: formData.content,
-      is_published: isActuallyPublished,
+      status: isActuallyPublished ? 'published' : 'draft',
     }
 
     let saveError
