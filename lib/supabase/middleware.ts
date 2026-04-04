@@ -45,12 +45,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is logged in and tries to access login page, redirect to dashboard
-  if (user && request.nextUrl.pathname === '/admin/login') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin'
-    return NextResponse.redirect(url)
-  }
+  // Removed automatic redirect for logged in users on login page 
+  // to allow switching to curator account
 
   return supabaseResponse
 }

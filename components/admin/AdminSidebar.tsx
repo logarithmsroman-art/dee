@@ -1,21 +1,17 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard } from 'lucide-react'
-import { Library } from 'lucide-react'
-import { FileText } from 'lucide-react'
-import { Briefcase } from 'lucide-react'
-import { Inbox } from 'lucide-react'
-import { Settings } from 'lucide-react'
-import { LogOut } from 'lucide-react'
+import { LayoutDashboard, Library, FileText, Briefcase, Inbox, Settings, LogOut } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/shelf', label: 'Shelf', icon: Library },
   { href: '/admin/blogs', label: 'Blog', icon: FileText },
+  { href: '/admin/subscribers', label: 'Subscribers', icon: FileText }, // Reusing FileText or Mail, let's use Mail imported if possible, but FileText works
   { href: '/admin/members', label: 'Members', icon: Briefcase },
   { href: '/admin/services', label: 'Services', icon: Briefcase },
   { href: '/admin/inquiries', label: 'Inbox', icon: Inbox },
@@ -40,9 +36,19 @@ export function AdminSidebar() {
     <>
       {/* ── Desktop Sidebar (md and above only) ── */}
       <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col h-screen sticky top-0 shrink-0">
-        <div className="p-6 border-b border-slate-800">
-          <h2 className="text-xl font-serif text-white tracking-wide">Dee's Pen House</h2>
-          <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Admin Portal</p>
+        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+          <div className="relative w-10 h-10 overflow-hidden rounded-full border border-slate-700 shrink-0">
+            <Image 
+              src="/logo.png" 
+              alt="Dee's Pen House"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <h2 className="text-sm font-serif text-white tracking-wide leading-tight">Dee's Pen House</h2>
+            <p className="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wider">Admin Portal</p>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 space-y-1 mt-4">
@@ -79,8 +85,24 @@ export function AdminSidebar() {
 
       {/* ── Mobile Top Bar (branding only) ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 py-3 bg-slate-900 border-b border-slate-800">
-        <h2 className="text-lg font-serif text-white tracking-wide">Dee's Pen House</h2>
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest">Admin</span>
+        <div className="flex items-center gap-3">
+          <div className="relative w-8 h-8 overflow-hidden rounded-full border border-slate-700">
+            <Image 
+              src="/logo.png" 
+              alt="Dee's Pen House"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <h2 className="text-sm font-serif text-white tracking-wide">Dee's Pen House</h2>
+        </div>
+        <button 
+          onClick={handleLogout}
+          className="text-slate-500 hover:text-amber-500 transition-colors"
+          title="Sign Out"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
 
       {/* ── Mobile Bottom Tab Bar ── */}

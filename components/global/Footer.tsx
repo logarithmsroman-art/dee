@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { LogoMark } from '@/components/global/LogoMark';
+import { NewsletterSignup } from '@/components/public/NewsletterSignup';
 
 export function Footer() {
   return (
@@ -6,19 +8,24 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
           <div className="col-span-1 md:col-span-2 space-y-6">
-            <Link href="/" className="font-serif text-3xl text-slate-900 tracking-tight block">
-              Dee's Pen House
+            <Link href="/" className="block">
+              <LogoMark size="lg" />
             </Link>
-            <p className="text-slate-500 font-light italic max-w-sm leading-relaxed">
+            <p className="text-slate-500 font-light italic max-w-sm leading-relaxed mb-6">
               Premium storytelling and creative agency. We curate bespoke narratives that bridge the gap between vision and legacy.
             </p>
+            <div className="pt-4">
+              <NewsletterSignup />
+            </div>
           </div>
+
           
           <div>
             <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em] mb-8">Navigation</h4>
             <div className="flex flex-col gap-4">
               <Link href="/shelf" className="text-[10px] font-medium text-slate-600 uppercase tracking-[0.15em] hover:text-slate-900 transition-colors">The Library</Link>
               <Link href="/blog" className="text-[10px] font-medium text-slate-600 uppercase tracking-[0.15em] hover:text-slate-900 transition-colors">Journal</Link>
+              <Link href="/about" className="text-[10px] font-medium text-slate-600 uppercase tracking-[0.15em] hover:text-slate-900 transition-colors">About Me</Link>
               <Link href="/services" className="text-[10px] font-medium text-slate-600 uppercase tracking-[0.15em] hover:text-slate-900 transition-colors">Expertise</Link>
             </div>
           </div>

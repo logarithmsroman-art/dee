@@ -28,13 +28,37 @@ export function MembersView() {
 
   async function loadMembers() {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false })
+    console.log('Fetching members...')
+    try {
+      // Try the optimized admin view first (resilient to RLS)
+      let { data, error } = await supabase
+        .from('admin_members_summary')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    if (!error) setMembers(data || [])
-    setLoading(false)
+      // Fallback: If view is missing, try the main table
+      if (error) {
+        console.warn('View failed, falling back to table:', error)
+        const fallbackRaw = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false })
+        
+        data = fallbackRaw.data
+        error = fallbackRaw.error
+      }
+
+      if (error) {
+        console.error('Fetch Error:', error)
+      } else {
+        console.log('Data fetched:', data)
+        setMembers(data || [])
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -43,9 +67,9 @@ export function MembersView() {
 
   const toggleBan = async (id: string, currentlyBanned: boolean) => {
     const member = members.find(m => m.id === id)
-    if (member?.is_admin) return // Safety: can't ban admins
+    if (member?.is_admin) return
     
-    if (!window.confirm(`Are you sure you want to ${currentlyBanned ? 'unban' : 'ban'} this member?`)) return
+    if (!currentlyBanned && !window.confirm(`Are you sure you want to ban this member?`)) return
     
     setActionLoading(id)
     const { error } = await supabase
@@ -61,14 +85,18 @@ export function MembersView() {
     setActionLoading(null)
   }
 
-  const filteredMembers = members.filter(m => 
-    (m.display_name?.toLowerCase() || '').includes(search.toLowerCase()) ||
-    (m.id.toLowerCase()).includes(search.toLowerCase())
-  )
+  const filteredMembers = members.filter(m => {
+    const searchTerm = search.toLowerCase()
+    return (
+      (m.display_name?.toLowerCase() || '').includes(searchTerm) ||
+      (m.email?.toLowerCase() || '').includes(searchTerm) ||
+      (m.id.toLowerCase()).includes(searchTerm)
+    )
+  })
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-100 italic font-serif text-slate-400">
-      <Loader2 className="w-8 h-8 animate-spin mb-4" />
+      <Loader2 className="w-8 h-8 animate-spin mb-4 text-amber-500" />
       Gathering the community...
     </div>
   )
@@ -77,6 +105,11 @@ export function MembersView() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="outline" className="text-[8px] font-bold uppercase tracking-widest px-3 py-1 border-slate-200 text-slate-400">
+              {members.length} Members Registered
+            </Badge>
+          </div>
           <h1 className="text-4xl font-serif text-slate-900 tracking-tight">The Library Circle</h1>
           <p className="text-slate-500 mt-2 font-light">Manage access and insights for your community of readers.</p>
         </div>
@@ -84,7 +117,7 @@ export function MembersView() {
         <div className="relative w-full md:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
-            placeholder="Find a member..." 
+            placeholder="Search by name or ID..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 h-12 bg-white border-slate-200 rounded-xl shadow-sm focus:ring-amber-500/20 transition-all font-light"
@@ -105,8 +138,9 @@ export function MembersView() {
           <TableBody>
             {filteredMembers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-20 font-serif italic text-slate-400 border-none">
-                  The circle is quiet. No members match your search.
+                <TableCell colSpan={4} className="text-center py-24 font-serif italic text-slate-400 border-none">
+                  <p className="text-xl mb-2">The circle is quiet.</p>
+                  <p className="text-sm">No members were found that match your search.</p>
                 </TableCell>
               </TableRow>
             ) : (
@@ -114,12 +148,13 @@ export function MembersView() {
                 <TableRow key={member.id} className="group border-slate-50">
                   <TableCell className="py-6 px-8">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-serif border border-slate-200">
-                        {member.display_name?.charAt(0) || '?'}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-serif border ${member.is_admin ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+                        {member.display_name?.charAt(0) || 'R'}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 leading-none mb-1">{member.display_name || 'Anonymous Reader'}</p>
-                        <p className="text-xs text-slate-400 font-light tracking-wide italic">{member.id.substring(0, 8)}... (Member ID)</p>
+                        <p className="font-medium text-slate-900 leading-none mb-1">{member.display_name || 'Individual Reader'}</p>
+                        <p className="text-[10px] text-amber-600 font-bold tracking-widest uppercase mb-1">{member.email || 'No email synced'}</p>
+                        <p className="text-[9px] text-slate-400 font-medium tracking-tight italic opacity-50">{member.id.substring(0, 12)}... (Member ID)</p>
                       </div>
                     </div>
                   </TableCell>

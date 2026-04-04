@@ -2,18 +2,31 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Menu } from 'lucide-react';
-import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, LogOut } from 'lucide-react';
+import { LogoMark } from '@/components/global/LogoMark';
+import { createBrowserClient } from '@supabase/ssr';
 
 export function GlobalNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    await supabase.auth.signOut()
+    router.push('/')
+    router.refresh()
+  }
 
   const menuLinks = [
     { name: 'The Library', href: '/shelf', index: '01' },
     { name: 'The Journal', href: '/blog', index: '02' },
-    { name: 'Expertise', href: '/services', index: '03' },
-    { name: 'Consultation', href: '/contact', index: '04' },
+    { name: 'About Me', href: '/about', index: '03' },
+    { name: 'Expertise', href: '/services', index: '04' },
+    { name: 'Consultation', href: '/contact', index: '05' },
   ];
 
   // Prevent scrolling when menu is open
@@ -31,15 +44,15 @@ export function GlobalNavbar() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative z-50">
         <Link 
           href="/" 
-          className="font-serif text-2xl lg:text-3xl text-slate-900 tracking-tight hover:text-amber-700 transition-colors"
+          className="flex items-center gap-3 group"
           onClick={() => setIsMenuOpen(false)}
         >
-          Dee's Pen House
+          <LogoMark size="md" />
         </Link>
         
         {/* Desktop Links */}
         <div className="hidden md:flex gap-10 items-center">
-          {menuLinks.slice(0, 3).map((link) => (
+          {menuLinks.slice(0, 4).map((link) => (
             <Link 
               key={link.name}
               href={link.href} 
@@ -68,10 +81,14 @@ export function GlobalNavbar() {
 
         {/* Mobile Slide-out Menu - SIMPLIFIED WITHOUT FRAMER MOTION */}
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-white z-[100] md:hidden flex flex-col p-10 pt-32 h-screen overflow-y-auto">
+          <div className="fixed inset-0 bg-white z-[100] md:hidden flex flex-col p-10 pt-32 h-screen overflow-y-auto italic">
             <div className="relative z-10 w-full">
-              <div className="text-[10px] uppercase font-semibold text-amber-600 tracking-[0.4em] mb-12">
-                Table of Contents
+              <div className="text-[10px] uppercase font-semibold text-amber-600 tracking-[0.4em] mb-12 flex items-center justify-between">
+                <span>Table of Contents</span>
+                <button onClick={handleLogout} className="text-slate-400 hover:text-amber-600 flex items-center gap-2">
+                  <LogOut size={14} />
+                  Sign Out
+                </button>
               </div>
 
               <div className="flex flex-col space-y-12">
@@ -97,11 +114,6 @@ export function GlobalNavbar() {
               <p className="text-[10px] uppercase tracking-[0.3em] font-medium text-slate-400">
                 Dee's Pen House -- Established Legacy
               </p>
-            </div>
-
-            {/* Decorative Subtle Image Overlay */}
-            <div className="absolute right-0 bottom-0 w-full h-1/2 opacity-[0.03] pointer-events-none grayscale">
-              {/* Optional: Add a simple image if needed */}
             </div>
           </div>
         )}

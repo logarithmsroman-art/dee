@@ -40,6 +40,18 @@ export function AuthForm() {
           },
         })
         if (error) throw error
+
+        // Auto-subscribe the new user silently
+        try {
+          await fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          })
+        } catch (e) {
+          console.error("Failed to auto-subscribe:", e)
+        }
+
         setMessage('Verification sent. Check your email to confirm your membership!')
       } else {
         const { error } = await supabase.auth.signInWithPassword({

@@ -25,6 +25,11 @@ export function InquiryDetailView({ id }: InquiryDetailViewProps) {
   const [inquiry, setInquiry] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
+  // Reply State
+  const [isReplying, setIsReplying] = useState(false)
+  const [replyMessage, setReplyMessage] = useState('')
+  const [replyStatus, setReplyStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+
   useEffect(() => {
     async function loadInquiry() {
       const { data, error } = await supabase
@@ -58,6 +63,48 @@ export function InquiryDetailView({ id }: InquiryDetailViewProps) {
     await supabase.from('inquiries').delete().eq('id', id)
     router.push('/admin/inquiries')
     router.refresh()
+  }
+
+  const handleSendReply = async () => {
+    if (!replyMessage.trim()) return
+    setReplyStatus("loading")
+    try {
+      const res = await fetch("/api/inquiries/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          inquiryId: id,
+          toEmail: inquiry.email, 
+          toName: inquiry.name,
+          subject: inquiry.subject,
+          message: replyMessage 
+        }),
+      })
+
+      if (res.ok) {
+        setReplyStatus("success")
+        
+        // Append to local state instantly
+        const newReply = {
+          message: replyMessage,
+          sent_at: new Date().toISOString()
+        }
+        setInquiry({
+          ...inquiry,
+          replies: [...(inquiry.replies || []), newReply]
+        })
+
+        setReplyMessage('')
+        setTimeout(() => {
+          setIsReplying(false)
+          setReplyStatus("idle")
+        }, 3000)
+      } else {
+        setReplyStatus("error")
+      }
+    } catch {
+       setReplyStatus("error")
+    }
   }
 
   if (loading) return <div className="animate-pulse p-12 space-y-6"><div className="h-4 w-1/4 bg-slate-100 rounded"></div><div className="h-48 bg-slate-50 rounded-2xl"></div></div>
@@ -105,17 +152,65 @@ export function InquiryDetailView({ id }: InquiryDetailViewProps) {
         <div className="p-10 space-y-8">
            <div className="space-y-4">
               <span className="text-[10px] uppercase tracking-widest font-bold text-amber-600 border border-amber-200 px-3 py-1 rounded-full">{inquiry.subject || 'New Inquiry'}</span>
-              <div className="text-slate-700 font-light text-xl leading-[1.8] whitespace-pre-wrap py-4 italic font-serif">
-                "{inquiry.message}"
+              
+              <div className="flex gap-4 items-start w-full max-w-2xl pt-4">
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-500 text-xs font-bold font-serif">{inquiry.name.charAt(0)}</div>
+                <div className="bg-slate-50 p-5 rounded-2xl rounded-tl-sm text-slate-700 font-light text-[15px] leading-[1.8] whitespace-pre-wrap italic font-serif">
+                  {inquiry.message}
+                </div>
               </div>
+
+              {/* Render Admin Replies */}
+              {inquiry.replies?.map((reply: any, i: number) => (
+                <div key={i} className="flex gap-4 items-start w-full max-w-2xl ml-auto justify-end pt-4">
+                  <div className="bg-slate-900 text-slate-200 p-5 rounded-2xl rounded-tr-sm font-light text-[15px] leading-[1.8] whitespace-pre-wrap font-serif">
+                    {reply.message}
+                    <div className="text-[10px] text-slate-500 mt-3 uppercase tracking-widest font-sans font-medium">Sent on {new Date(reply.sent_at).toLocaleString()}</div>
+                  </div>
+                  <div className="w-8 h-8 rounded-full flex-shrink-0 relative overflow-hidden border border-slate-700">
+                    <img src="/logo.png" className="w-full h-full object-cover" alt="Admin" />
+                  </div>
+                </div>
+              ))}
            </div>
 
-           <div className="pt-12 border-t border-slate-50 flex gap-4">
-             <Button asChild className="rounded-full px-10 py-6 font-bold gap-3">
-               <a href={`mailto:${inquiry.email}?subject=Re: ${inquiry.subject || 'Your Inquiry'}`}>
-                 <Mail size={16} /> Reply to {inquiry.name.split(' ')[0]}
-               </a>
-             </Button>
+           <div className="pt-12 border-t border-slate-50">
+             {!isReplying ? (
+               <Button onClick={() => setIsReplying(true)} className="rounded-full px-10 py-6 font-bold gap-3">
+                 <Mail size={16} /> Reply to {inquiry.name.split(' ')[0]} via Email
+               </Button>
+             ) : (
+               <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
+                 <h4 className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-2">Compose Reply from hello@deespenhouse.site</h4>
+                 <textarea 
+                   className="w-full min-h-[150px] p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 resize-y"
+                   placeholder={`Write your response to ${inquiry.name}...`}
+                   value={replyMessage}
+                   onChange={(e) => setReplyMessage(e.target.value)}
+                   disabled={replyStatus === "loading" || replyStatus === "success"}
+                 ></textarea>
+                 
+                 <div className="flex gap-3 items-center">
+                   <Button 
+                     onClick={handleSendReply} 
+                     disabled={replyStatus === "loading" || replyStatus === "success" || !replyMessage.trim()}
+                     className="rounded-full px-8 gap-2 bg-slate-900 text-white"
+                   >
+                     {replyStatus === "loading" ? "Sending..." : replyStatus === "success" ? "Reply Sent" : "Send Reply Now"}
+                   </Button>
+                   <Button 
+                     variant="ghost" 
+                     className="rounded-full text-slate-400"
+                     onClick={() => setIsReplying(false)}
+                     disabled={replyStatus === "loading" || replyStatus === "success"}
+                   >
+                     Cancel
+                   </Button>
+                   {replyStatus === "error" && <p className="text-xs text-red-500 font-medium ml-4">Error sending reply. Try again.</p>}
+                   {replyStatus === "success" && <p className="text-xs text-amber-600 font-medium ml-4">Message sent to {inquiry.email}!</p>}
+                 </div>
+               </div>
+             )}
            </div>
         </div>
       </div>

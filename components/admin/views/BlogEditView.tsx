@@ -109,6 +109,25 @@ export function BlogEditView({ id }: BlogEditViewProps) {
       setError(saveError.message)
       setSaving(false)
     } else {
+      // Trigger notification if freshly published
+      const justPublished = isActuallyPublished && (!formData.is_published || isNew)
+      if (justPublished) {
+        try {
+          await fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              articleId: id || 'new',
+              title: payload.title,
+              excerpt: payload.excerpt,
+              slug: payload.slug,
+            })
+          })
+        } catch (e) {
+          console.error("Failed to trigger notify", e)
+        }
+      }
+
       router.push('/admin/blogs')
       router.refresh()
     }

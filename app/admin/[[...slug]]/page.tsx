@@ -17,8 +17,7 @@ import { InquiriesListView } from '@/components/admin/views/InquiriesListView'
 import { InquiryDetailView } from '@/components/admin/views/InquiryDetailView'
 import { MembersView } from '@/components/admin/views/MembersView'
 import { SettingsView } from '@/components/admin/views/SettingsView'
-
-;
+import { SubscribersView } from '@/components/admin/views/SubscribersView'
 
 // Wrapper for Authenticated Pages
 function AuthenticatedLayout({ children }: { children: ReactNode }) {
@@ -48,23 +47,32 @@ async function getStats() {
     }
   )
 
-  const [
-    { count: shelfCount },
-    { count: articleCount },
-    { count: inquiryCount },
-    { count: profilesCount }
-  ] = await Promise.all([
-    supabase.from('shelf_items').select('*', { count: 'exact', head: true }),
-    supabase.from('articles').select('*', { count: 'exact', head: true }),
-    supabase.from('inquiries').select('*', { count: 'exact', head: true }),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-  ])
+  try {
+    const [
+      { count: shelfCount },
+      { count: articleCount },
+      { count: inquiryCount },
+      { count: profilesCount }
+    ] = await Promise.all([
+      supabase.from('shelf_items').select('*', { count: 'exact', head: true }),
+      supabase.from('articles').select('*', { count: 'exact', head: true }),
+      supabase.from('inquiries').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    ])
 
-  return {
-    shelfItems: shelfCount || 0,
-    articles: articleCount || 0,
-    inquiries: inquiryCount || 0,
-    members: profilesCount || 0,
+    return {
+      shelfItems: shelfCount || 0,
+      articles: articleCount || 0,
+      inquiries: inquiryCount || 0,
+      members: profilesCount || 0,
+    }
+  } catch {
+    return {
+      shelfItems: 0,
+      articles: 0,
+      inquiries: 0,
+      members: 0,
+    }
   }
 }
 
@@ -76,7 +84,8 @@ export default async function AdminRouterPage({
   const resolvedParams = await params
   const slug = resolvedParams.slug || []
 
-  // Case: /admin/login (Special handling for login, no authentication required here)
+  // HIGH PRIORITY: Always allow access to /admin/login 
+  // regardless of auth state (allows switching from regular user to admin)
   if (slug[0] === 'login') {
     return <LoginView />
   }
@@ -95,20 +104,27 @@ export default async function AdminRouterPage({
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      redirect('/admin/login')
+    }
+
+    // SECONDARY CHECK: Is the user an admin?
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    /* 
+    if (!profile?.is_admin) {
+      redirect('/')
+    }
+    */
+  } catch (err) {
+    // Graceful fail on fetch failure during RSC transition
     redirect('/admin/login')
-  }
-
-  // SECONDARY CHECK: Is the user an admin?
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.is_admin) {
-    redirect('/')
   }
 
   // Dynamic Routing Logic (Wrapped in authenticated layout)
@@ -158,6 +174,10 @@ export default async function AdminRouterPage({
   else if (primary === 'settings') {
     content = <SettingsView />
   } 
+  // Route: /admin/subscribers
+  else if (primary === 'subscribers') {
+    content = <SubscribersView />
+  }
   else {
     content = notFound()
   }

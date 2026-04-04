@@ -10,6 +10,7 @@ import { ServicesView } from '@/components/public/views/ServicesView'
 import { ShelfListView } from '@/components/public/views/ShelfListView'
 import { ShelfItemView } from '@/components/public/views/ShelfItemView'
 import { ContactView } from '@/components/public/views/ContactView'
+import { AboutView } from '@/components/public/views/AboutView'
 
 ;
 
@@ -30,31 +31,35 @@ async function getSupabase() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }) {
-  const resolvedParams = await params
-  const slug = resolvedParams.slug || []
-  const supabase = await getSupabase()
+  try {
+    const resolvedParams = await params
+    const slug = resolvedParams.slug || []
+    const supabase = await getSupabase()
 
-  if (!supabase || slug.length === 0) return { title: "Dee's Pen House | Architect of Narratives" }
+    if (!supabase || slug.length === 0) return { title: "Dee's Pen House | Architect of Narratives" }
 
-  const primary = slug[0]
-  const secondary = slug[1]
+    const primary = slug[0]
+    const secondary = slug[1]
 
-  if (primary === 'blog') {
-    if (!secondary) return { title: "The Journal | Dee's Pen House" }
-    const { data } = await supabase.from('articles').select('title').eq('slug', secondary).single()
-    return { title: data ? `${data.title} | Dee's Pen House` : 'Journal Entry' }
+    if (primary === 'blog') {
+      if (!secondary) return { title: "The Journal | Dee's Pen House" }
+      const { data } = await supabase.from('articles').select('title').eq('slug', secondary).single()
+      return { title: data ? `${data.title} | Dee's Pen House` : 'Journal Entry' }
+    }
+
+    if (primary === 'shelf') {
+      if (!secondary) return { title: "The Library | Dee's Pen House" }
+      const { data } = await supabase.from('shelf_items').select('title').eq('slug', secondary).single()
+      return { title: data ? `${data.title} | Dee's Pen House` : 'Publication' }
+    }
+
+    if (primary === 'services') return { title: "Expertise | Dee's Pen House" }
+    if (primary === 'contact') return { title: "Inquire | Dee's Pen House" }
+
+    return { title: "Dee's Pen House" }
+  } catch {
+    return { title: "Dee's Pen House" }
   }
-
-  if (primary === 'shelf') {
-    if (!secondary) return { title: "The Library | Dee's Pen House" }
-    const { data } = await supabase.from('shelf_items').select('title').eq('slug', secondary).single()
-    return { title: data ? `${data.title} | Dee's Pen House` : 'Publication' }
-  }
-
-  if (primary === 'services') return { title: "Expertise | Dee's Pen House" }
-  if (primary === 'contact') return { title: "Inquire | Dee's Pen House" }
-
-  return { title: "Dee's Pen House" }
 }
 
 export default async function PublicRouterPage({
@@ -113,9 +118,8 @@ export default async function PublicRouterPage({
           settings={settings || {}}
         />
       )
-    } catch (e) {
-      console.error('Root route fetch failure:', e)
-      return <HomeView services={[]} settings={{}} />
+    } catch {
+      return <HomeView latestShelfItem={undefined} latestArticle={undefined} services={[]} settings={{}} />
     }
   }
 
@@ -125,47 +129,79 @@ export default async function PublicRouterPage({
   // Route: /blog
   if (primary === 'blog') {
     if (!secondary) {
-      const { data: articles } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('status', 'published')
-        .order('published_at', { ascending: false })
-      return <BlogListView articles={articles || []} />
+      try {
+        const { data: articles } = await supabase
+          .from('articles')
+          .select('*')
+          .eq('status', 'published')
+          .order('published_at', { ascending: false })
+        return <BlogListView articles={articles || []} />
+      } catch {
+        return <BlogListView articles={[]} />
+      }
     }
-    
     // Route: /blog/[slug]
-    const { data: article } = await supabase.from('articles').select('*').eq('slug', secondary).single()
-    if (!article || article.status !== 'published') notFound()
-    return <ArticleView article={article} />
+    try {
+      const { data: article } = await supabase.from('articles').select('*').eq('slug', secondary).single()
+      if (!article || article.status !== 'published') notFound()
+      return <ArticleView article={article} />
+    } catch {
+      return notFound()
+    }
   }
 
   // Route: /shelf
   if (primary === 'shelf') {
     if (!secondary) {
-      const { data: shelfItems } = await supabase
-        .from('shelf_items')
-        .select('*')
-        .eq('is_visible', true)
-        .order('created_at', { ascending: false })
-      return <ShelfListView shelfItems={shelfItems || []} />
+      try {
+        const { data: shelfItems } = await supabase
+          .from('shelf_items')
+          .select('*')
+          .eq('is_visible', true)
+          .order('created_at', { ascending: false })
+        return <ShelfListView shelfItems={shelfItems || []} />
+      } catch {
+        return <ShelfListView shelfItems={[]} />
+      }
     }
-
     // Route: /shelf/[slug]
-    const { data: item } = await supabase.from('shelf_items').select('*').eq('slug', secondary).single()
-    if (!item || !item.is_visible) notFound()
-    return <ShelfItemView item={item} />
+    try {
+      const { data: item } = await supabase.from('shelf_items').select('*').eq('slug', secondary).single()
+      if (!item || !item.is_visible) notFound()
+      return <ShelfItemView item={item} />
+    } catch {
+      return notFound()
+    }
   }
 
   // Route: /services
   if (primary === 'services') {
-    const { data: services } = await supabase.from('services').select('*').order('created_at', { ascending: true })
-    return <ServicesView services={services || []} />
+    try {
+      const { data: services } = await supabase.from('services').select('*').order('created_at', { ascending: true })
+      return <ServicesView services={services || []} />
+    } catch {
+      return <ServicesView services={[]} />
+    }
   }
 
   // Route: /contact
   if (primary === 'contact') {
-    const { data: settings } = await supabase.from('global_settings').select('contact_email, linkedin_url, twitter_url').maybeSingle()
-    return <ContactView settings={settings || {}} />
+    try {
+      const { data: settings } = await supabase.from('global_settings').select('contact_email, linkedin_url, twitter_url').maybeSingle()
+      return <ContactView settings={settings || {}} />
+    } catch {
+      return <ContactView settings={{}} />
+    }
+  }
+
+  // Route: /about
+  if (primary === 'about') {
+    try {
+      const { data: settings } = await supabase.from('global_settings').select('about_owner_image, about_owner_text').maybeSingle()
+      return <AboutView settings={settings || {}} />
+    } catch {
+      return <AboutView settings={{}} />
+    }
   }
 
   return notFound()

@@ -28,7 +28,11 @@ export function SettingsView() {
     methodology_title: '',
     methodology_main_title: '',
     methodology_description: '',
-    methodology_image_url: ''
+    methodology_image_url: '',
+    email_template_welcome: '',
+    email_template_new_post: '',
+    about_owner_text: '',
+    about_owner_image: ''
   })
 
   const supabase = createBrowserClient(
@@ -45,6 +49,16 @@ export function SettingsView() {
         .single()
 
       if (data) {
+        // Hydrate with current defaults if empty
+        if (!data.email_template_welcome) {
+          data.email_template_welcome = `Thank you for stepping into Dee's Pen House. We are thrilled to have you here.\n\nAs an esteemed member of our community, you will now receive exclusive updates whenever a new narrative or journal entry is published. We look forward to curating bespoke stories directly to your inbox.`
+        }
+        if (!data.email_template_new_post) {
+          data.email_template_new_post = `A new narrative has just been published.`
+        }
+        if (!data.about_owner_text) {
+          data.about_owner_text = `As a master storyteller and architect of legacy, I believe that every individual holds a reservoir of narratives waiting to be immortalized.\n\nDee's Pen House was built on the philosophy that a beautifully structured sentence can bridge the gap between fleeting vision and eternal impact. Whether ghostwriting private memoirs or curating an organization's brand identity, my methodology relies on profound empathy, rigorous research, and elegant prose.\n\nWhen I step away from the ink and parchment, I am continually studying the arts, architecture, and the beautiful idiosyncrasies of human connection. I welcome you to explore the Library and the Journal, and I look forward to uncovering the legacy you are building.`
+        }
         setSettings(data)
       } else if (error && error.code !== 'PGRST116') {
         console.error('Error loading settings:', error)
@@ -79,6 +93,10 @@ export function SettingsView() {
         methodology_main_title: settings.methodology_main_title,
         methodology_description: settings.methodology_description,
         methodology_image_url: settings.methodology_image_url,
+        email_template_welcome: settings.email_template_welcome,
+        email_template_new_post: settings.email_template_new_post,
+        about_owner_text: settings.about_owner_text,
+        about_owner_image: settings.about_owner_image,
         updated_at: new Date().toISOString(),
       })
       .eq('id', rowId)
@@ -124,16 +142,51 @@ export function SettingsView() {
       <form onSubmit={handleSave} className="space-y-10">
         
         <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-          <h2 className="text-lg font-bold border-b border-slate-50 pb-4 text-slate-900">Brand Identity</h2>
-          <div className="space-y-4">
-            <Label className="text-slate-500">Brand Logo</Label>
-            <ImageUploader 
-              bucket="media" 
-              folder="brand"
-              currentImage={settings.brand_logo_url}
-              onUploadSuccess={(url) => setSettings({ ...settings, brand_logo_url: url })} 
-            />
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Recommended: PNG with transparent background</p>
+          <h2 className="text-lg font-bold border-b border-slate-50 pb-4 text-slate-900">Email Auto-Responders</h2>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Welcome Subscription Template</Label>
+              <textarea
+                className="w-full min-h-[120px] p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 font-sans text-sm resize-y"
+                value={settings.email_template_welcome || ''}
+                onChange={(e) => setSettings({ ...settings, email_template_welcome: e.target.value })}
+                placeholder="The custom text sent to new subscribers..."
+              />
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Sent immediately when someone creates an account or joins the list.</p>
+            </div>
+            <div className="space-y-2">
+              <Label>New Blog Publish Template</Label>
+              <textarea
+                className="w-full min-h-[120px] p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 font-sans text-sm resize-y"
+                value={settings.email_template_new_post || ''}
+                onChange={(e) => setSettings({ ...settings, email_template_new_post: e.target.value })}
+                placeholder="The custom intro text sent when a new blog is published..."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+          <h2 className="text-lg font-bold border-b border-slate-50 pb-4 text-slate-900">About the Author</h2>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Author Portrait</Label>
+              <ImageUploader 
+                bucket="media" 
+                folder="brand"
+                currentImage={settings.about_owner_image}
+                onUploadSuccess={(url) => setSettings({ ...settings, about_owner_image: url })} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Biography Text</Label>
+              <textarea
+                className="w-full min-h-[200px] p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 font-sans text-sm resize-y"
+                value={settings.about_owner_text || ''}
+                onChange={(e) => setSettings({ ...settings, about_owner_text: e.target.value })}
+                placeholder="Write the biography of the author..."
+              />
+            </div>
           </div>
         </section>
 

@@ -70,7 +70,7 @@ export function BlogListView({ articles }: BlogListViewProps) {
             />
           </div>
           
-          <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+          <div className="flex items-center gap-4 w-full overflow-x-auto pb-4 md:pb-0 scrollbar-hide no-scrollbar">
             {categories.map(cat => (
               <button
                 key={cat}
@@ -86,10 +86,20 @@ export function BlogListView({ articles }: BlogListViewProps) {
             ))}
           </div>
 
-          <div className="hidden lg:flex items-center gap-3 border-l border-slate-100 pl-8">
+          <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8 w-full md:w-auto">
+             <div className="lg:hidden w-full">
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'recent' | 'popular')}
+                  className="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 focus:ring-0"
+                >
+                  <option value="recent">Latest Releases</option>
+                  <option value="popular">Most Popular</option>
+                </select>
+             </div>
              <button 
                 onClick={() => setSortBy(sortBy === 'recent' ? 'popular' : 'recent')}
-                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-amber-600 transition-colors"
+                className="hidden lg:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-amber-600 transition-colors whitespace-nowrap"
              >
                <Filter size={14} />
                {sortBy === 'recent' ? 'Latest Releases' : 'Most Popular'}
