@@ -37,15 +37,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
     }
 
-    // Fetch Custom Template
-    const { data: settings } = await supabase
+    // Fetch Custom Template (Resilient Fetch)
+    const { data: settings, error: settingsError } = await supabase
       .from('global_settings')
       .select('email_template_welcome')
       .single()
-
-    const dynamicWelcomeText = settings?.email_template_welcome || `Thank you for stepping into Dee's Pen House. We are thrilled to have you here.
     
-As an esteemed member of our community, you will now receive exclusive updates whenever a new narrative or journal entry is published. We look forward to curating bespoke stories directly to your inbox.`
+    if (settingsError) {
+      console.warn('Note: Using default template due to settings fetch error (likely RLS).', settingsError.message)
+    }
+
+    const defaultWelcomeText = `Thank you for stepping into Dee's Pen House. We are thrilled to have you here.\n\nAs an esteemed member of our community, you will now receive exclusive updates whenever a new narrative or journal entry is published. We look forward to curating bespoke stories directly to your inbox.`
+    
+    const dynamicWelcomeText = settings?.email_template_welcome || defaultWelcomeText
 
     // Send the Welcome Email via Resend
     const { error: emailError } = await resend.emails.send({
