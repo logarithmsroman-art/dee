@@ -9,6 +9,8 @@ const resend = new Resend(resendApiKey);
 export async function POST(req: Request) {
   try {
     const { email } = await req.json()
+    console.log('[Subscribe Query] Attempting for:', email)
+    
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
@@ -31,10 +33,14 @@ export async function POST(req: Request) {
       .from('subscribers')
       .insert({ email })
 
-    // Ignore unique constraint errors (already subscribed)
+    // If there is an error AND it is NOT a "Duplicate Entry" (23505), then fail.
+    // If it IS a duplicate, we let it slide and send the email anyway.
     if (dbError && dbError.code !== '23505') {
       console.error('DB Error:', dbError)
-      return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Database error. Please try again later.',
+        details: dbError.message 
+      }, { status: 500 })
     }
 
     // Fetch Custom Template (Resilient Fetch)

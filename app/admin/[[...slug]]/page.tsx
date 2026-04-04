@@ -104,27 +104,33 @@ export default async function AdminRouterPage({
     }
   )
 
+  let user = null;
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      redirect('/admin/login')
-    }
-
-    // SECONDARY CHECK: Is the user an admin?
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
-    /* 
-    if (!profile?.is_admin) {
-      redirect('/')
-    }
-    */
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
   } catch (err) {
-    // Graceful fail on fetch failure during RSC transition
+    console.error('Auth check fetch failure:', err)
+    // We let it fall through to user check
+  }
+
+  // Handle Redirection OUTSIDE of try/catch
+  if (!user && slug[0] !== 'login') {
     redirect('/admin/login')
+  }
+
+  // SECONDARY CHECK: Profile check (minimal fetch)
+  if (user) {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+      
+      // Admin guard could go here
+    } catch (e) {
+      // Profile hitch – usually non-fatal for navigation
+    }
   }
 
   // Dynamic Routing Logic (Wrapped in authenticated layout)
