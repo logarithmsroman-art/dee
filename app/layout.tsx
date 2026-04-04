@@ -19,11 +19,32 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Dee's Pen House | Storytelling & Creative Agency",
   description: "Bespoke ghostwriting, content writing, and brand storytelling by Dee's Pen House.",
+  metadataBase: new URL('https://deespenhouse.site'),
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
+  },
   openGraph: {
-    title: "Dee's Pen House",
+    title: "Dee's Pen House | Architect of Narratives",
     description: "Bespoke ghostwriting, content writing, and brand storytelling by Dee's Pen House.",
-    type: "website",
+    url: 'https://deespenhouse.site',
     siteName: "Dee's Pen House",
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: "Dee's Pen House Branding",
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Dee's Pen House | Storytelling & Creative Agency",
+    description: "Bespoke ghostwriting, content writing, and brand storytelling by Dee's Pen House.",
+    images: ['/opengraph-image.png'],
   },
 };
 
